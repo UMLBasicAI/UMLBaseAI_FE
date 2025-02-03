@@ -1,9 +1,9 @@
-import DistanceSelector from '@/components/core/common/DistanceSelector'
-import { Button, Chip, Image, Input } from '@nextui-org/react'
-import { MapPin, Pointer, SearchIcon } from 'lucide-react'
-import React from 'react'
+import DistanceSelector from '@/components/core/common/Selector'
+import { Button, Image, useDisclosure } from '@nextui-org/react'
+import { MapPin, SearchIcon } from 'lucide-react'
 
 export default function SpinSeekModules() {
+
     return (
         <main className="mx-auto grid max-w-[1440px] items-center gap-8 px-4 py-12 md:grid-cols-2">
             <div className="space-y-8">
@@ -19,7 +19,13 @@ export default function SpinSeekModules() {
                     </h1>
                 </div>
 
-                <div className="space-y-4 rounded-xl bg-white p-5">
+                <div
+                    className="space-y-4 rounded-xl bg-white p-5 shadow-lg"
+                    style={{
+                        boxShadow:
+                            'rgba(233, 155, 97, 0.25) 0px 50px 100px -20px, rgba(233, 155, 97,0.4) 0px 30px 60px -30px',
+                    }}
+                >
                     <div className="relative">
                         <div className="flex w-full flex-row gap-5 rounded-md border border-secondary bg-white px-4 py-5">
                             <div>
@@ -38,6 +44,20 @@ export default function SpinSeekModules() {
                     <div className="grid grid-cols-3 gap-4">
                         <div className="space-y-2">
                             <DistanceSelector
+                                prefix={
+                                    <MapPin className="h-5 w-5 text-secondary" />
+                                }
+                                lable="Mục đích"
+                                defaultValue=""
+                                placeholder="Lựa chọn"
+                                options={[{ label: '10km', value: '10' }]}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <DistanceSelector
+                                prefix={
+                                    <MapPin className="h-5 w-5 text-secondary" />
+                                }
                                 lable="Khoảng cách"
                                 defaultValue=""
                                 placeholder="Lựa chọn"
@@ -45,21 +65,14 @@ export default function SpinSeekModules() {
                             />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-sm text-gray-600">
-                                Loại hình
-                            </label>
-                            <Input
-                                placeholder="Lựa chọt"
-                                className="w-full rounded-xl bg-white"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-sm text-gray-600">
-                                Thời gian
-                            </label>
-                            <Input
-                                placeholder="Lựa chọt"
-                                className="w-full rounded-xl bg-white"
+                            <DistanceSelector
+                                prefix={
+                                    <MapPin className="h-5 w-5 text-secondary" />
+                                }
+                                lable="Giá tiền"
+                                defaultValue=""
+                                placeholder="Lựa chọn"
+                                options={[{ label: '10km', value: '10' }]}
                             />
                         </div>
                     </div>
@@ -102,11 +115,12 @@ export default function SpinSeekModules() {
                 </div>
             </div>
 
-            <div className="relative hidden h-[500px] md:block">
+            <div className="relative hidden h-[500px] items-center justify-center md:flex">
                 <Image
-                    src="/icons/sipnseek.png"
+                    src="/images/Background_Images.png"
                     alt="Coffee drink"
                     className="object-contain"
+                    width={300}
                 />
             </div>
         </main>

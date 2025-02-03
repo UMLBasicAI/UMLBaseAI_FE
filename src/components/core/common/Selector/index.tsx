@@ -1,8 +1,8 @@
 'use client'
 
-import { useReducer } from 'react'
+import React, { useReducer } from 'react'
 import { ChevronDown, MapPin } from 'lucide-react'
-import { cn } from '@/app/libs/utils'
+import { cn } from '@/libs/utils'
 
 export type SelectorState = {
     isOpen: boolean
@@ -38,12 +38,14 @@ type SelectorProps = {
     options: { label: string; value: string }[]
     defaultValue?: string
     placeholder?: string
+    prefix?: React.ReactNode | React.JSX.Element | string | null
 }
 export default function Selector({
     lable,
     options = [],
     defaultValue,
     placeholder,
+    prefix,
 }: SelectorProps) {
     const [state, dispatch] = useReducer(reducer, initialState)
     return (
@@ -53,7 +55,11 @@ export default function Selector({
                 onClick={() => dispatch({ type: 'TOGGLE_DROPDOWN' })}
                 className="flex w-full items-center gap-3 rounded-xl border border-neutral-200 bg-white px-4 py-3 text-left shadow-sm"
             >
-                <MapPin className="h-5 w-5 text-neutral-500" />
+                <div>
+                    {prefix && (
+                        prefix
+                    )}
+                </div>
                 <div className="flex-1">
                     <div className="text-xs text-neutral-500">{lable}</div>
                     <div
