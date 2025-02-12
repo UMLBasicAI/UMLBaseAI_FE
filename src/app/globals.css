@@ -29,3 +29,21 @@ body {
 #dashboard-header>header {
   max-width: 100%;
 }
+
+::-webkit-scrollbar {
+  width: 10px;
+  padding-inline: 1px;
+  background: rgba(0, 0, 0, 0);
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f5f3ea;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #dbdbdb;
+  border-radius: 100vw;
+  border: 3px solid #f5f3ea;
+}

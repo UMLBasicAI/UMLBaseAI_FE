@@ -8,7 +8,7 @@ interface Props {
 }
 interface State {}
 
-class MultipleImageSelection extends Component<Props, State> {
+class MultipleImageSelectionForMenu extends Component<Props, State> {
     constructor(props: Props) {
         super(props)
         this.state = {}
@@ -56,7 +56,7 @@ class MultipleImageSelection extends Component<Props, State> {
             <>
                 {this.props.fileStorage?.length > 0 ? (
                     <div className="flex flex-wrap items-start gap-4">
-                        <div className="grid h-[fit] w-full grid-cols-2 sm:grid-cols-6 items-center justify-start gap-2 rounded-lg p-2 dark:bg-third">
+                        <div className="grid h-[fit] w-full grid-cols-2 sm:grid-cols-6 items-center justify-start gap-2 rounded-lg  p-2 dark:bg-third">
                             {Array.from(this.props.fileStorage).map(
                                 (item: File, index: number) => (
                                     <div key={index} className="relative">
@@ -94,12 +94,12 @@ class MultipleImageSelection extends Component<Props, State> {
                             <div className="h-[100px] w-full">
                                 <input
                                     type="file"
-                                    id="fileImporter"
+                                    id="fileImporterMenu"
                                     className="hidden"
                                     onChange={this.handleOnChangeSeleteFile}
                                     multiple
                                 />
-                                <label htmlFor="fileImporter" className="w-fit">
+                                <label htmlFor="fileImporterMenu" className="w-fit">
                                     <div className="hover:animate-wiggle flex h-full w-full cursor-pointer items-center justify-center rounded-lg bg-third dark:bg-black">
                                         <Plus className="text-[42px]" />
                                     </div>
@@ -111,13 +111,13 @@ class MultipleImageSelection extends Component<Props, State> {
                     <div className="flex h-full w-full items-center justify-center">
                         <input
                             type="file"
-                            id="fileImporter"
+                            id="fileImporterMenu"
                             className="hidden"
                             onChange={this.handleOnChangeSeleteFile}
                             multiple
                         />
                         <div className="flex items-center gap-2 flex-col p-4">
-                            <label htmlFor="fileImporter">
+                            <label htmlFor="fileImporterMenu">
                                 <div className="hover:animate-wiggle flex h-[60px] w-[60px] cursor-pointer items-center justify-center rounded-lg transition-all hover:bg-slate-100 dark:bg-black">
                                     <Plus className="text-[42px] text-third" />
                                 </div>
@@ -132,4 +132,4 @@ class MultipleImageSelection extends Component<Props, State> {
         )
     }
 }
-export default MultipleImageSelection
+export default MultipleImageSelectionForMenu

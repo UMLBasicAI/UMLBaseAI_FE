@@ -7,11 +7,11 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 
 const menuItems = [
-    { key: 'dashboard', label: 'Dashboard', icon: Home },
-    { key: 'users', label: 'Users', icon: Users },
-    { key: 'stores', label: 'Store', icon: StoreIcon },
-    { key: 'analytics', label: 'Analytics', icon: BarChart2 },
-    { key: 'settings', label: 'Settings', icon: Settings },
+    { key: 'dashboard', label: 'Trang chủ', icon: Home },
+    { key: 'users', label: 'Người dùng', icon: Users },
+    { key: 'stores', label: 'Cửa hàng', icon: StoreIcon },
+    { key: 'analytics', label: 'Thư viện', icon: BarChart2 },
+    { key: 'settings', label: 'Cài đặt', icon: Settings },
 ]
 
 interface SidebarProps {

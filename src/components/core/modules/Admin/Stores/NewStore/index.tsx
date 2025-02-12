@@ -1,4 +1,5 @@
 'use client'
+import MultipleImageSelectionForMenu from '@/components/core/common/MutipleImageSelectionForMenu'
 import MultipleImageSelection from '@/components/core/common/MutipleImageSelection'
 import useCustomSWR from '@/Hooks/useCustomSWR'
 import useCustomSwrMutation from '@/Hooks/useCustomSWRMutation'
@@ -136,11 +137,54 @@ export default function NewStore() {
         }
     }
 
+    const [
+        multipleImageFileStorageForMenu,
+        setMultipleImageFileStorageForMenuForMenu,
+    ] = useState<FileList | null>(null)
+
+    const handleUpdateImageMenus = async (): Promise<string[] | null> => {
+        try {
+            if (
+                !multipleImageFileStorageForMenu ||
+                multipleImageFileStorageForMenu.length === 0
+            ) {
+                toast.error('Chưa chọn ảnh nào cho thư viện ảnh của cửa hàng!')
+                return null
+            }
+
+            const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUD_NAME
+            const PRESET_MENU =
+                process.env.NEXT_PUBLIC_CLOUD_UPLOAD_PRESET_MENUS
+
+            const uploadPromises = Array.from(
+                multipleImageFileStorageForMenu,
+            ).map(async (file) => {
+                const formData = new FormData()
+                formData.append('file', file)
+                formData.append('upload_preset', PRESET_MENU as string)
+
+                const response = await axios.post(
+                    `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+                    formData,
+                )
+
+                return response.data.secure_url
+            })
+
+            const imageUrls = await Promise.all(uploadPromises)
+            return imageUrls
+        } catch (error) {
+            toast.error('Đã có lỗi xảy ra khi tải ảnh!')
+            return null
+        }
+    }
+
     const { trigger: postStoreGalleries } = useCustomSwrMutation(
         '/gallery/create',
         'POST',
     )
-    const { trigger: postStore } = useCustomSwrMutation('/store/create', 'POST')
+    const {trigger: postStoreMenu} = useCustomSwrMutation('/menu/create', 'POST');
+    const { trigger: postStore } = useCustomSwrMutation('/store/create', 'POST');
 
     const [isCreateNewStoreSuccess, setIsCreateNewStoreSuccess] =
         useState(false)
@@ -152,16 +196,20 @@ export default function NewStore() {
         const placeName = extractPlaceName(data.addressName as string)
         const thumbnailURL = (await handleUpdateThumbnail()) ?? null
         const galleriesURL = (await handleUpdateImageGalleries()) ?? null
-        console.log('THUMB: ' + thumbnailURL)
-        galleriesURL?.map((item) => console.log('GALLERIES: ', item))
-        if (thumbnailURL && galleriesURL && galleriesURL.length > 0) {
+        const menusURL = (await handleUpdateImageMenus()) ?? null
+        if (thumbnailURL && galleriesURL && galleriesURL.length > 0 && menusURL) {
             const galleriesResponse = await postStoreGalleries({
                 images: galleriesURL,
+            })
+            const menusResponse = await postStoreMenu({
+                images: menusURL
             })
             const galleryIds = galleriesResponse?.body?.createdGallery.map(
                 (item: any) => item._id,
             )
-            console.log('GALLERIES ID: ', galleryIds)
+            const menusIds = menusResponse?.body?.createdMenu.map(
+                (item: any) => item._id,
+            )
 
             const toPostData = {
                 ...data,
@@ -172,6 +220,7 @@ export default function NewStore() {
                 },
                 thumbnail: thumbnailURL,
                 images: galleryIds,
+                menu: menusIds
             }
             try {
                 const storeResponse = await postStore(toPostData)
@@ -240,12 +289,12 @@ export default function NewStore() {
                                     placeholder="Nhập nội dung"
                                 />
                                 <Textarea
-                                    isRequired
+                                    disabled
                                     errorMessage="Không được bỏ trống"
-                                    label="Menu"
+                                    label="Menu (disabled)"
                                     labelPlacement="outside"
                                     name="menu"
-                                    placeholder="Nhập nội dung"
+                                    placeholder="Đổi thành thêm ảnh bên dưới!"
                                 />
                                 <Input
                                     isRequired
@@ -274,6 +323,7 @@ export default function NewStore() {
                                     labelPlacement="outside"
                                     name="openTime"
                                     defaultValue={new Time(6)}
+                                    className="!p-0"
                                 />
                                 <TimeInput
                                     isRequired
@@ -282,6 +332,7 @@ export default function NewStore() {
                                     labelPlacement="outside"
                                     name="closeTime"
                                     defaultValue={new Time(22)}
+                                    className="!p-0"
                                 />
                                 <Select
                                     isRequired
@@ -323,7 +374,7 @@ export default function NewStore() {
                                 </Select>
                             </div>
                             <div className="w-full">
-                                <p className="text-sm">Ảnh</p>
+                                <p className="text-sm">Ảnh cửa hàng</p>
                                 <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div
                                         className="max-h-[fit-content] min-h-[200px] rounded-lg border-1"
@@ -414,6 +465,21 @@ export default function NewStore() {
                                                 }
                                             />
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="w-full">
+                                <p className="text-sm">Ảnh Menu</p>
+                                <div className="grid min-h-[200px] w-full grid-cols-1 gap-4 sm:grid-cols-2">
+                                    <div className="h-full rounded-lg border-1">
+                                        <MultipleImageSelectionForMenu
+                                            fileStorage={
+                                                multipleImageFileStorageForMenu!
+                                            }
+                                            setFileStorage={
+                                                setMultipleImageFileStorageForMenuForMenu
+                                            }
+                                        />
                                     </div>
                                 </div>
                             </div>
