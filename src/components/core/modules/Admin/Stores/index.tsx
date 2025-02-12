@@ -147,7 +147,7 @@ export default function StoresModules() {
                         <TableColumn key="actions">Thao tác</TableColumn>
                     </TableHeader>
                     <TableBody
-                        emptyContent={'Không tìm thấy của hàng'}
+                        emptyContent={'Không tìm thấy cửa hàng'}
                         items={data?.body?.stores ?? []}
                         loadingContent={<Spinner />}
                         loadingState={loadingState}
