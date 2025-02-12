@@ -213,7 +213,7 @@ export default function StoresModules() {
                     </TableBody>
                 </Table>
             </div>
-            <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+            <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement='top-center'>
                 <ModalContent>
                     {(onClose) => (
                         <>

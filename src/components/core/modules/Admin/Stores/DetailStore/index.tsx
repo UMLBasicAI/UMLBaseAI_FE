@@ -4,7 +4,7 @@ import ImageViewer, {
 } from '@/components/core/common/ImageViewer'
 import useCustomSWR from '@/Hooks/useCustomSWR'
 import useCustomSwrMutation from '@/Hooks/useCustomSWRMutation'
-import { parseTime, Time } from '@internationalized/date'
+import { parseTime } from '@internationalized/date'
 import {
     Button,
     Card,
@@ -16,13 +16,13 @@ import {
     TimeInput,
 } from '@nextui-org/react'
 import axios from 'axios'
-import { div } from 'framer-motion/client'
-import { ArrowLeft, Plus, View, X, XCircle } from 'lucide-react'
+import { ArrowLeft, Plus, XCircle } from 'lucide-react'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 import React, { useState } from 'react'
 import toast from 'react-hot-toast'
 import { Circles } from 'react-loader-spinner'
+import { motion } from 'framer-motion'
 
 export default function DetailStoreModule() {
     const searchParams = useSearchParams()
@@ -377,7 +377,11 @@ export default function DetailStoreModule() {
     }
 
     return (
-        <div>
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, ease: 'easeOut' }}
+        >
             {storeId && (
                 <div>
                     <div className="w-fullh-full flex flex-col gap-5">
@@ -397,9 +401,9 @@ export default function DetailStoreModule() {
                             </div>
                         </div>
                         <div>
-                            <Card>
-                                <CardBody className="w-full p-4">
-                                    {storeData && (
+                            {storeData && (
+                                <Card>
+                                    <CardBody className="w-full p-4">
                                         <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2">
                                             <div className="flex flex-col gap-4">
                                                 <Form
@@ -585,7 +589,14 @@ export default function DetailStoreModule() {
                                                         )}
                                                     </Select>
                                                     <div className="mt-4">
-                                                        <Button className="bg-third">
+                                                        <Button
+                                                            className="bg-third"
+                                                            onPress={() =>
+                                                                alert(
+                                                                    'Chưa cập nhật',
+                                                                )
+                                                            }
+                                                        >
                                                             Cập nhật
                                                         </Button>
                                                     </div>
@@ -842,9 +853,9 @@ export default function DetailStoreModule() {
                                                 </div>
                                             </div>
                                         </div>
-                                    )}
-                                </CardBody>
-                            </Card>
+                                    </CardBody>
+                                </Card>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -856,6 +867,6 @@ export default function DetailStoreModule() {
                 startIndex={startIndex}
                 key={storeData?.body?.store?._id}
             />
-        </div>
+        </motion.div>
     )
 }
