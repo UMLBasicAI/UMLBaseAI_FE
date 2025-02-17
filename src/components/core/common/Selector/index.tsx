@@ -49,7 +49,7 @@ export default function Selector({
 }: SelectorProps) {
     const [state, dispatch] = useReducer(reducer, initialState)
     return (
-        <div className="relative w-full max-w-[300px]">
+        <div className="relative w-full max-w-full sm:max-w-[300px]">
             {/* Main Button */}
             <button
                 onClick={() => dispatch({ type: 'TOGGLE_DROPDOWN' })}

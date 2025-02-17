@@ -19,10 +19,13 @@ import axios from 'axios'
 import { ArrowLeft, Plus, XCircle } from 'lucide-react'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Circles } from 'react-loader-spinner'
 import { motion } from 'framer-motion'
+import _ from 'lodash'
+import { extractLatLng } from '@/utils/extractLatLngt'
+import { extractPlaceName } from '@/utils/extractPlaceName'
 
 export default function DetailStoreModule() {
     const searchParams = useSearchParams()
@@ -33,11 +36,69 @@ export default function DetailStoreModule() {
     const { data: priceRangeData } = useCustomSWR('/prices/get')
     const { data: purposeData } = useCustomSWR('/purposes/get')
     const router = useRouter()
-    const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {}
 
     const [isOpenImageViewer, setIsOpenImageViewer] = useState(false)
     const [toViewImages, setToViewImages] = useState<IImage[]>([])
     const [startIndex, setStartIndex] = useState(0)
+    const [priceTags, setPriceTags] = useState([])
+    const [purposeTags, setPurposeTags] = useState([])
+    const [isLoading, setIsLoading] = useState(false)
+
+    const { trigger: putStore } = useCustomSwrMutation(
+        '/store/update-store',
+        'PATCH',
+    )
+    useEffect(() => {
+        if (!storeData?.body?.store) return
+        setPriceTags(
+            storeData?.body?.store?.priceTag.map((item: any) => item._id),
+        )
+        setPurposeTags(
+            storeData?.body?.store?.purposeTag.map((item: any) => item._id),
+        )
+    }, [storeData])
+    const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        try {
+            e.preventDefault()
+            setIsLoading(true)
+            const data = Object.fromEntries(new FormData(e.currentTarget))
+            const latLng = extractLatLng(data.googleMapLink as string)
+            const placeName = extractPlaceName(data.googleMapLink as string)
+            const parsedData = {
+                ...data,
+                _id: storeData?.body?.store?._id,
+                priceTag: priceTags,
+                purposeTag: purposeTags,
+                addressName: placeName
+                    ? placeName
+                    : storeData?.body?.store?.addressName,
+                addressGoogle: {
+                    latitude: latLng
+                        ? latLng?.lat
+                        : storeData?.body?.store?.addressGoogle?.latitude,
+                    longitude: latLng
+                        ? latLng?.lng
+                        : storeData?.body?.store?.addressGoogle?.longitude,
+                },
+            }
+            const forUpdateData = _.omit(parsedData, ['googleMapLink'])
+
+            console.log(forUpdateData);
+
+            const response = await putStore(forUpdateData)
+
+            if (response?.status === 200) {
+                toast.success('Cập nhật cửa hàng thành công!')
+            }
+            if (response?.status !== 200) {
+                toast.error('Cập nhật cửa hàng thất bại!')
+            }
+
+            setIsLoading(false)
+            storeDataMutate()
+            router.push('/admin/stores')
+        } catch (error) {}
+    }
 
     const handleViewDetailThumbnail = () => {
         if (!storeData?.body?.store?.thumbnail) return
@@ -472,7 +533,7 @@ export default function DetailStoreModule() {
                                                         errorMessage="Không được bỏ trống"
                                                         label="Google Map Link"
                                                         labelPlacement="outside"
-                                                        name="storename"
+                                                        name="googleMapLink"
                                                         type="text"
                                                         placeholder="(Bao gồm lat, lngt và địa chỉ)"
                                                     ></Input>
@@ -541,6 +602,15 @@ export default function DetailStoreModule() {
                                                             (price: any) =>
                                                                 price?._id,
                                                         )}
+                                                        onSelectionChange={(
+                                                            keys: any,
+                                                        ) =>
+                                                            setPriceTags(
+                                                                Array.from(
+                                                                    keys,
+                                                                ),
+                                                            )
+                                                        }
                                                     >
                                                         {priceRangeData?.body?.prices.map(
                                                             (price: any) => (
@@ -570,6 +640,15 @@ export default function DetailStoreModule() {
                                                             (purpose: any) =>
                                                                 purpose?._id,
                                                         )}
+                                                        onSelectionChange={(
+                                                            keys: any,
+                                                        ) =>
+                                                            setPurposeTags(
+                                                                Array.from(
+                                                                    keys,
+                                                                ),
+                                                            )
+                                                        }
                                                     >
                                                         {purposeData?.body?.purposes.map(
                                                             (purpose: any) => (
@@ -591,10 +670,9 @@ export default function DetailStoreModule() {
                                                     <div className="mt-4">
                                                         <Button
                                                             className="bg-third"
-                                                            onPress={() =>
-                                                                alert(
-                                                                    'Chưa cập nhật',
-                                                                )
+                                                            type="submit"
+                                                            isLoading={
+                                                                isLoading
                                                             }
                                                         >
                                                             Cập nhật

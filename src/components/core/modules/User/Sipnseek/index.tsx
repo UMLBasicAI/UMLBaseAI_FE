@@ -3,15 +3,14 @@ import { Button, Image, useDisclosure } from '@nextui-org/react'
 import { MapPin, SearchIcon } from 'lucide-react'
 
 export default function SpinSeekModules() {
-
     return (
         <main className="mx-auto grid max-w-[1440px] items-center gap-8 px-4 py-12 md:grid-cols-2">
             <div className="space-y-8">
                 <div className="space-y-2">
-                    <h1 className="text-4xl font-medium text-secondary">
+                    <h1 className="text-3xl font-medium text-secondary sm:text-4xl">
                         Bữa ni đi
-                        <span className="flex flex-row items-end gap-4">
-                            <span className="block text-5xl font-extrabold text-primary">
+                        <span className="flex flex-col items-start gap-2 sm:flex-row sm:items-end sm:gap-4">
+                            <span className="block text-4xl font-extrabold text-primary sm:text-5xl">
                                 quán cà phê
                             </span>
                             <span className="text-[#A46B27]">mô hè?</span>
@@ -34,14 +33,14 @@ export default function SpinSeekModules() {
                             <div className="w-full">
                                 <input
                                     type="text"
-                                    placeholder="giá rẻ, ngon, gần đây, Đà Nẵng, chill..."
+                                    placeholder="Tìm kiếm..."
                                     className="w-full border-none outline-none"
                                 />
                             </div>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div className="space-y-2">
                             <DistanceSelector
                                 prefix={
@@ -83,12 +82,12 @@ export default function SpinSeekModules() {
                                 type="checkbox"
                                 className="rounded border-gray-300 text-secondary accent-third"
                             />
-                            <span className="text-sm text-gray-600">
+                            <span className="text-xs sm:text-sm text-gray-600">
                                 Chỉ tìm kiếm quán đang mở cửa
                             </span>
                         </div>
 
-                        <Button className="rounded-full bg-[#E4833C] px-6 py-6 text-white">
+                        <Button className="rounded-full bg-[#E4833C] px-4 py-4  sm:px-6 sm:py-6 text-white">
                             <SearchIcon className="text-[16px] text-white" />
                             <p className="text-[18px] font-bold">Đi thôi</p>
                         </Button>
