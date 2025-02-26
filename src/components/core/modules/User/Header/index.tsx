@@ -3,6 +3,7 @@ import { useState, useEffect } from "react"
 import SignInModal from "@/components/core/elements/Auth/Sign-In"
 import { Button, Image, useDisclosure } from "@nextui-org/react"
 import { Bookmark, Menu, X } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 export default function Header() {
   const {
@@ -12,7 +13,7 @@ export default function Header() {
   } = useDisclosure()
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-
+  const router = useRouter();
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)
   }
@@ -38,7 +39,7 @@ export default function Header() {
   return (
     <header className="mx-auto max-w-[1440px] px-4 py-4 relative z-50">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push("/")}>
           <Image src="/icons/sipnseek.png" alt="Sip Seek Logo" width={80} height={60} />
         </div>
 

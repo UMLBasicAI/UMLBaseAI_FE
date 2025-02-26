@@ -1,8 +1,46 @@
+'use client'
 import DistanceSelector from '@/components/core/common/Selector'
+import { useGeolocation } from '@/components/layouts/GeolocationProvider'
+import useCustomSWR from '@/Hooks/useCustomSWR'
 import { Button, Image, useDisclosure } from '@nextui-org/react'
 import { MapPin, SearchIcon } from 'lucide-react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
 
 export default function SpinSeekModules() {
+    const [searchValue, setSearchValue] = useState<string | null>()
+    const [priceValue, setPriceValue] = useState<string | null>()
+    const [detanceValue, setDetanceValue] = useState<string | null>()
+    const [purposeValue, setPurposeValue] = useState<string | null>()
+    const { latitude, longitude, error } = useGeolocation()
+
+    const router = useRouter()
+    const pathname = usePathname()
+    const searchParam = new URLSearchParams(useSearchParams())
+    const handleChangeRouteToExplore = () => {
+        const queryParams = new URLSearchParams(searchParam)
+
+        const filters = {
+            page: (1)?.toString(),
+            search: searchValue,
+            price: priceValue,
+            distance: detanceValue,
+            purpose: purposeValue,
+            lat: latitude?.toString(),
+            lng: longitude?.toString(),
+        }
+
+        Object.entries(filters).forEach(([key, value]) => {
+            if (value) queryParams.set(key, value) // Chỉ thêm nếu giá trị tồn tại
+        })
+
+        router.push(`${pathname}/explore?${queryParams.toString()}`)
+    }
+
+    const { data: priceRangeData } = useCustomSWR('/prices/get')
+
+    const { data: purposeData } = useCustomSWR('/purposes/get')
     return (
         <main className="mx-auto grid max-w-[1440px] items-center gap-8 px-4 py-12 md:grid-cols-2">
             <div className="space-y-8">
@@ -35,12 +73,15 @@ export default function SpinSeekModules() {
                                     type="text"
                                     placeholder="Tìm kiếm..."
                                     className="w-full border-none outline-none"
+                                    onChange={(e) =>
+                                        setSearchValue(e.target.value)
+                                    }
                                 />
                             </div>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                         <div className="space-y-2">
                             <DistanceSelector
                                 prefix={
@@ -49,7 +90,10 @@ export default function SpinSeekModules() {
                                 lable="Mục đích"
                                 defaultValue=""
                                 placeholder="Lựa chọn"
-                                options={[{ label: '10km', value: '10' }]}
+                                options={purposeData?.body?.purposes}
+                                onSelectionChange={(value) => {
+                                    setPurposeValue(value)
+                                }}
                             />
                         </div>
                         <div className="space-y-2">
@@ -60,7 +104,14 @@ export default function SpinSeekModules() {
                                 lable="Khoảng cách"
                                 defaultValue=""
                                 placeholder="Lựa chọn"
-                                options={[{ label: '10km', value: '10' }]}
+                                options={[
+                                    { label: '5km', value: '5km' },
+                                    { label: '10km', value: '10km' },
+                                    { label: '15km', value: '15km' },
+                                ]}
+                                onSelectionChange={(value) => {
+                                    setDetanceValue(value)
+                                }}
                             />
                         </div>
                         <div className="space-y-2">
@@ -71,7 +122,10 @@ export default function SpinSeekModules() {
                                 lable="Giá tiền"
                                 defaultValue=""
                                 placeholder="Lựa chọn"
-                                options={[{ label: '10km', value: '10' }]}
+                                options={priceRangeData?.body?.prices}
+                                onSelectionChange={(value) => {
+                                    setPriceValue(value)
+                                }}
                             />
                         </div>
                     </div>
@@ -82,14 +136,19 @@ export default function SpinSeekModules() {
                                 type="checkbox"
                                 className="rounded border-gray-300 text-secondary accent-third"
                             />
-                            <span className="text-xs sm:text-sm text-gray-600">
+                            <span className="text-xs text-gray-600 sm:text-sm">
                                 Chỉ tìm kiếm quán đang mở cửa
                             </span>
                         </div>
 
-                        <Button className="rounded-full bg-[#E4833C] px-4 py-4  sm:px-6 sm:py-6 text-white">
+                        <Button
+                            className="rounded-full bg-[#E4833C] px-4 py-4 text-white sm:px-6 sm:py-6"
+                            onPress={() => handleChangeRouteToExplore()}
+                        >
                             <SearchIcon className="text-[16px] text-white" />
-                            <p className="text-[18px] font-bold">Đi thôi</p>
+                            <p className="text-[14px] font-bold sm:text-[18px]">
+                                Đi thôi
+                            </p>
                         </Button>
                     </div>
                 </div>

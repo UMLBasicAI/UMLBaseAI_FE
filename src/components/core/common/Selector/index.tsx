@@ -39,6 +39,7 @@ type SelectorProps = {
     defaultValue?: string
     placeholder?: string
     prefix?: React.ReactNode | React.JSX.Element | string | null
+    onSelectionChange?: (value: string) => void
 }
 export default function Selector({
     lable,
@@ -46,8 +47,15 @@ export default function Selector({
     defaultValue,
     placeholder,
     prefix,
+    onSelectionChange,
 }: SelectorProps) {
     const [state, dispatch] = useReducer(reducer, initialState)
+    const handleSelect = (value: string) => {
+        dispatch({ type: 'SELECT_OPTION', payload: value })
+        if (onSelectionChange) {
+            onSelectionChange(value)
+        }
+    }
     return (
         <div className="relative w-full max-w-full sm:max-w-[300px]">
             {/* Main Button */}
@@ -55,11 +63,7 @@ export default function Selector({
                 onClick={() => dispatch({ type: 'TOGGLE_DROPDOWN' })}
                 className="flex w-full items-center gap-3 rounded-xl border border-neutral-200 bg-white px-4 py-3 text-left shadow-sm"
             >
-                <div>
-                    {prefix && (
-                        prefix
-                    )}
-                </div>
+                <div>{prefix && prefix}</div>
                 <div className="flex-1">
                     <div className="text-xs text-neutral-500">{lable}</div>
                     <div
@@ -86,12 +90,7 @@ export default function Selector({
                         {options.map((option) => (
                             <button
                                 key={option.value}
-                                onClick={() =>
-                                    dispatch({
-                                        type: 'SELECT_OPTION',
-                                        payload: option.label,
-                                    })
-                                }
+                                onClick={() => handleSelect(option.value)}
                                 className={`flex w-full items-center rounded-md px-3 py-2 text-sm transition-colors hover:bg-neutral-100 ${
                                     state.selectedValue === option.label
                                         ? 'bg-orange-50 text-orange-500'
