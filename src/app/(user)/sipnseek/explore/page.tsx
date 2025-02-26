@@ -1,6 +1,10 @@
 import ExploreModule from '@/components/core/modules/User/Explore'
-import React from 'react'
+import React, { Suspense } from 'react'
 
 export default function Explore() {
-    return <ExploreModule />
+    return (
+        <Suspense>
+            <ExploreModule />
+        </Suspense>
+    )
 }
