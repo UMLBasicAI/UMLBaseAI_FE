@@ -1,5 +1,11 @@
-import { redirect } from "next/navigation";
+import { Button } from 'antd'
+import { redirect } from 'next/navigation'
 
 export default function RootPage() {
-    redirect("/sipnseek");
+    return (
+        <div>
+            test
+            <br />
+        </div>
+    )
 }

@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import { cn, NextUIProvider } from '@nextui-org/react'
 import { Montserrat } from 'next/font/google'
 import AppProvider from './provider'
+import { cn } from '@/libs/utils'
 
 export const metadata: Metadata = {
     title: 'SPINSEEK',

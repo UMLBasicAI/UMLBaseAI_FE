@@ -9,21 +9,22 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ant-design/nextjs-registry": "^1.0.0",
     "@internationalized/date": "^3.7.0",
-    "@nextui-org/react": "^2.6.10",
-    "@react-google-maps/api": "^2.20.5",
+    "@reduxjs/toolkit": "^2.6.1",
+    "antd": "^5.24.3",
     "axios": "^1.7.9",
+    "clsx": "^2.1.1",
     "framer-motion": "^11.15.0",
-    "geolib": "^3.3.4",
     "lodash": "^4.17.21",
-    "lucide-react": "^0.469.0",
     "next": "14.2.22",
     "react": "^18",
     "react-dom": "^18",
-    "react-hot-toast": "^2.5.1",
     "react-loader-spinner": "^6.1.6",
+    "react-redux": "^9.2.0",
     "react-responsive": "^10.0.0",
-    "swr": "^2.3.0"
+    "swr": "^2.3.0",
+    "tailwind-merge": "^3.0.2"
   },
   "devDependencies": {
     "@types/node": "^20",

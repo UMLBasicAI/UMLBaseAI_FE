@@ -1,7 +1,9 @@
-import { GeolocationProvider } from '@/components/layouts/GeolocationProvider'
-import { NextUIProvider } from '@nextui-org/react'
 import React from 'react'
-import { Toaster } from 'react-hot-toast'
+import { AntdRegistry } from '@ant-design/nextjs-registry'
+import { App, ConfigProvider } from 'antd'
+import { themes } from '@/style/themes'
+import { Provider } from 'react-redux'
+import { store } from '@/store'
 
 export default function AppProvider({
     children,
@@ -9,41 +11,41 @@ export default function AppProvider({
     children: React.ReactNode
 }) {
     return (
-        <NextUIProvider>
-            <GeolocationProvider>
-                <Toaster
-                    position="top-center"
-                    reverseOrder={false}
-                    gutter={8}
-                    containerClassName=""
-                    containerStyle={{}}
-                    toastOptions={{
-                        className: '',
-                        duration: 5000,
-                        removeDelay: 1000,
-                        style: {
-                            background: '#fff',
-                            color: '#000',
+        <AntdRegistry>
+            <ConfigProvider
+                theme={{
+                    components: {
+                        Button: {
+                            colorPrimary: themes.default.colors.primary,
+                            algorithm: true,
                         },
-
-                        success: {
-                            duration: 3000,
-                            iconTheme: {
-                                primary: 'green',
-                                secondary: 'white',
-                            },
+                        Input: {
+                            paddingBlock: 8,
                         },
-                        error: {
-                            duration: 3000,
-                            iconTheme: {
-                                primary: 'red',
-                                secondary: 'white',
-                            },
+                        Typography: {
+                            titleMarginBottom: 0,
+                            titleMarginTop: 0,
                         },
-                    }}
-                />
-                {children}
-            </GeolocationProvider>
-        </NextUIProvider>
+                        Table: {
+                            headerBg: '#fff',
+                            headerColor: '#000',
+                            headerBorderRadius: 8,
+                            footerBg: '#fff',
+                        },
+                        Select: {
+                            controlHeight: 40,
+                            fontSizeLG: 14,
+                        },
+                    },
+                    token: {
+                        colorPrimary: themes.default.colors.primary,
+                    },
+                }}
+            >
+                <App>
+                    <Provider store={store}>{children}</Provider>
+                </App>
+            </ConfigProvider>
+        </AntdRegistry>
     )
 }
