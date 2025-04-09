@@ -44,9 +44,9 @@ jobs:
           at: ~/project
 
       - run:
-          name: Create .env.production file from environment variable
+          name: Create .env.production from ENV_PROD_BASE64
           command: |
-            echo "$ENV_PROD" > ~/project/.env.production
+            echo "$ENV_PROD_BASE64" | base64 --decode > ~/project/.env.production
 
       - run:
           name: Sync project files to Azure VPS
@@ -70,7 +70,9 @@ jobs:
             echo "🔄 Syncing files to VPS using rsync..."
             rsync -avz --delete \
               -e "ssh -o StrictHostKeyChecking=no" \
-              ~/project/ vuvudev@20.2.88.32:$APP_DIR
+              ~/project/.env.production \
+              ~/project/ \
+              vuvudev@20.2.88.32:$APP_DIR
 
 
       - run:
