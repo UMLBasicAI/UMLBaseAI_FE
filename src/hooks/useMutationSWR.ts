@@ -4,11 +4,7 @@ import useSWRMutation, {
 } from 'swr/mutation'
 import { fetcher } from '@/utils/fetcher'
 
-interface UseCustomSwrMutationOptions extends RequestInit {
-    endpoint?: string
-}
-
-export default function useCustomSwrMutation<T = any, V = any>(
+export default function useMutationSWR<T = any, V = any>(
     endpoint: string,
     method?: 'POST' | 'PATCH' | 'PUT' | 'DELETE',
     options?: SWRMutationConfiguration<T, any, string, V>,

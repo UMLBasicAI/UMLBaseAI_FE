@@ -5,8 +5,8 @@ import AppProvider from './provider'
 import { cn } from '@/libs/utils'
 
 export const metadata: Metadata = {
-    title: 'SPINSEEK',
-    icons: 'public/icons/sipnseek.png',
+    title: 'UML Basic AI',
+    icons: '/icons/UMLBasicAI.png',
 }
 const montserrat = Montserrat({
     subsets: ['latin'],

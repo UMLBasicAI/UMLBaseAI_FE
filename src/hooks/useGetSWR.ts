@@ -6,7 +6,7 @@ interface UseCustomSWROptions extends RequestInit {
   endpoint?: string;
 }
 
-export default function useCustomSWR<T = any>(
+export default function useGetSWR<T = any>(
   endpoint: string | null, // Endpoint can be null to disable fetching
   options?: UseCustomSWROptions, // Request options (e.g., headers, body)
   swrOptions?: SWRConfiguration // SWR configurations (e.g., revalidation options)
