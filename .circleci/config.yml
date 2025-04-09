@@ -47,6 +47,12 @@ jobs:
           name: Sync project files to Azure VPS
           command: |
             APP_DIR="/home/vuvudev/apps/umlbasicai-fe/production"
+            
+            echo "🔍 Checking and installing rsync if needed..."
+              if ! command -v rsync &> /dev/null; then
+                echo "🔧 Installing rsync..."
+                sudo apt update && sudo apt install rsync -y
+              fi
 
             echo "🔄 Syncing files to VPS using rsync..."
             rsync -avz --delete \
@@ -60,12 +66,6 @@ jobs:
             ssh -o StrictHostKeyChecking=no vuvudev@20.2.88.32 \<< 'EOF'
               set -e
 
-              echo "🔍 Checking and installing rsync if needed..."
-              if ! command -v rsync &> /dev/null; then
-                echo "🔧 Installing rsync..."
-                sudo apt update && sudo apt install rsync -y
-              fi
-              
               APP_DIR="/home/vuvudev/apps/umlbasicai-fe/production"
 
               echo "📁 Checking if $APP_DIR exists..."
