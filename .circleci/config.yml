@@ -57,7 +57,7 @@ jobs:
       - run:
           name: Install and restart app on VPS
           command: |
-            ssh -o StrictHostKeyChecking=no vuvudev@20.2.88.32 << 'EOF'
+            ssh -o StrictHostKeyChecking=no vuvudev@20.2.88.32 \<< 'EOF'
               set -e
 
               APP_DIR="/home/vuvudev/apps/umlbasicai-fe/production"
