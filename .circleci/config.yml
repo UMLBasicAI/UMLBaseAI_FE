@@ -1,0 +1,106 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@5
+
+jobs:
+  build:
+    executor: node/default
+    steps:
+      - checkout
+
+      - node/install-packages:
+          pkg-manager: npm
+
+      - run:
+          name: Build Next.js App
+          command: npm run build
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .next
+            - public
+            - package.json
+            - package-lock.json
+            - node_modules
+            - ecosystem.config.js
+            - next.config.js
+
+  deploy:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "	SHA256:tAU0OGff3IHLy0PV3JrdjtizXfq4bAKblpidItk5Clk"
+
+      - attach_workspace:
+          at: ~/project
+
+      - run:
+          name: Create .env.production file from environment variable
+          command: |
+            echo "$ENV_PROD" > ~/project/.env.production
+
+      - run:
+          name: Sync project files to Azure VPS
+          command: |
+            APP_DIR="/home/vuvudev/apps/umlbasicai-fe/production"
+
+            echo "🔄 Syncing files to VPS using rsync..."
+            rsync -avz --delete \
+              -e "ssh -o StrictHostKeyChecking=no" \
+              ~/project/ vuvudev@20.2.88.32:$APP_DIR
+
+
+      - run:
+          name: Install and restart app on VPS
+          command: |
+            ssh -o StrictHostKeyChecking=no vuvudev@20.2.88.32 \<< 'EOF'
+              set -e
+
+              APP_DIR="/home/vuvudev/apps/umlbasicai-fe/production"
+
+              echo "📁 Checking if $APP_DIR exists..."
+              if [ ! -d "$APP_DIR" ]; then
+                echo "📂 Creating $APP_DIR..."
+                mkdir -p "$APP_DIR"
+              else
+                echo "✅ $APP_DIR already exists."
+              fi
+
+              cd $APP_DIR
+
+              echo "🧪 Checking for Node.js and PM2..."
+              if ! command -v node > /dev/null; then
+                echo "⚙️ Installing Node.js..."
+                curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+                sudo apt-get install -y nodejs
+              fi
+
+              if ! command -v pm2 > /dev/null; then
+                echo "⚙️ Installing PM2..."
+                sudo npm install -g pm2
+              fi
+
+              echo "📦 Installing dependencies..."
+              npm install
+
+              echo "🔧 Building the application..."
+              npm run build
+
+              echo "🚀 Restarting app with PM2..."
+              pm2 restart ecosystem.config.js || pm2 start ecosystem.config.js
+            EOF
+
+workflows:
+  build-and-deploy:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              only: main
