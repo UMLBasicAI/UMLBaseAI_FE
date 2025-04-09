@@ -38,7 +38,7 @@ jobs:
       - attach_workspace:
           at: ~/project
 
-            - run:
+      - run:
           name: Create .env.production file from environment variable
           command: |
             echo "$ENV_PROD" > ~/project/.env.production
