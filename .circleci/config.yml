@@ -25,7 +25,7 @@ jobs:
             - package-lock.json
             - node_modules
             - ecosystem.config.js
-            - next.config.js
+            - next.config.mjs
             - src
             - tsconfig.json
             - tailwind.config.js
