@@ -26,6 +26,11 @@ jobs:
             - node_modules
             - ecosystem.config.js
             - next.config.js
+            - src
+            - tsconfig.json
+            - tailwind.config.js
+            - postcss.config.js
+          
 
   deploy:
     docker:
