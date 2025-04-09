@@ -48,6 +48,14 @@ jobs:
           command: |
             APP_DIR="/home/vuvudev/apps/umlbasicai-fe/production"
             
+            echo "📁 Checking if $APP_DIR exists..."
+              if [ ! -d "$APP_DIR" ]; then
+                echo "📂 Creating $APP_DIR..."
+                mkdir -p "$APP_DIR"
+              else
+                echo "✅ $APP_DIR already exists."
+              fi
+
             echo "🔍 Checking and installing rsync if needed..."
               if ! command -v rsync &> /dev/null; then
                 echo "🔧 Installing rsync..."
@@ -67,15 +75,6 @@ jobs:
               set -e
 
               APP_DIR="/home/vuvudev/apps/umlbasicai-fe/production"
-
-              echo "📁 Checking if $APP_DIR exists..."
-              if [ ! -d "$APP_DIR" ]; then
-                echo "📂 Creating $APP_DIR..."
-                mkdir -p "$APP_DIR"
-              else
-                echo "✅ $APP_DIR already exists."
-              fi
-
               cd $APP_DIR
 
               echo "🧪 Checking for Node.js and PM2..."
