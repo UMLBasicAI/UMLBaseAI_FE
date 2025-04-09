@@ -29,9 +29,8 @@ jobs:
             - src
             - tsconfig.json
             - tailwind.config.js
-            - postcss.config.js
-          
-
+            - postcss.config.mjs
+            
   deploy:
     docker:
       - image: cimg/base:stable
