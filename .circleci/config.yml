@@ -28,7 +28,7 @@ jobs:
             - next.config.mjs
             - src
             - tsconfig.json
-            - tailwind.config.js
+            - tailwind.config.ts
             - postcss.config.mjs
             
   deploy:
