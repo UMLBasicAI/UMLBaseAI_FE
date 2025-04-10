@@ -17,14 +17,6 @@ steps:
     inputs:
       version: '$(NODE_VERSION)'
 
-  # Cài package để build
-  - script: npm install
-    displayName: 'Install dependencies for build'
-
-  # Build app (nếu muốn build trước, có thể bỏ nếu chỉ build trên VPS)
-  - script: npm run build
-    displayName: 'Build Next.js app for checking (optional)'
-
   # Nén project loại trừ node_modules, .next, deploy-temp...
   - task: Bash@3
     displayName: 'Zip project without node_modules'
