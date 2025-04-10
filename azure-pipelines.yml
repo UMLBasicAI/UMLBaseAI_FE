@@ -17,24 +17,25 @@ steps:
     inputs:
       version: '$(NODE_VERSION)'
 
-  # Cài package
+  # Cài package để build
   - script: npm install
-    displayName: 'Install dependencies'
+    displayName: 'Install dependencies for build'
 
-  # Build app
+  # Build app (nếu muốn build trước, có thể bỏ nếu chỉ build trên VPS)
   - script: npm run build
-    displayName: 'Build Next.js app'
+    displayName: 'Build Next.js app for checking (optional)'
 
-  # Nén toàn bộ project cần thiết vào file zip
-  - task: ArchiveFiles@2
+  # Nén project loại trừ node_modules, .next, deploy-temp...
+  - task: Bash@3
+    displayName: 'Zip project without node_modules'
     inputs:
-      rootFolderOrFile: '$(Build.SourcesDirectory)'
-      includeRootFolder: false
-      archiveType: 'zip'
-      archiveFile: '$(Build.ArtifactStagingDirectory)/$(ZIP_NAME)'
-      verbose: true
+      targetType: 'inline'
+      script: |
+        echo "📦 Zipping project without node_modules and unnecessary folders"
+        zip -r $(Build.ArtifactStagingDirectory)/$(ZIP_NAME) . \
+          -x "**/node_modules/*" "**/.next/*" "**/deploy-temp/*" "**/.git/*" "**/.vscode/*"
 
-  # Upload file zip qua SSH
+  # Upload file zip lên VPS
   - task: CopyFilesOverSSH@0
     inputs:
       sshEndpoint: 'AzureVPS'
@@ -42,42 +43,46 @@ steps:
       contents: '$(ZIP_NAME)'
       targetFolder: '/home/vuvudev/deploy-temp'
 
-  # SSH vào VPS để giải nén, cài package và chạy app bằng PM2
+  # SSH vào VPS để deploy app
   - task: SSH@0
-    displayName: 'SSH into VPS to extract and run the app'
+    displayName: 'SSH deploy and run app'
     inputs:
       sshEndpoint: 'AzureVPS'
       runOptions: 'inline'
       inline: |
         set -e
 
-        echo "📦 Extracting zip..."
-        unzip -o /home/vuvudev/deploy-temp/umlbasicai-fe.zip -d /home/vuvudev/apps/umlbasicai-fe/production
+        echo "📂 Clean old production folder (optional)"
+        rm -rf $(APP_DIR)
+        mkdir -p $(APP_DIR)
 
-        echo "🧹 Deleting zip file after extraction"
-        rm /home/vuvudev/deploy-temp/umlbasicai-fe.zip
+        echo "📦 Extracting zip to $(APP_DIR)..."
+        unzip -o /home/vuvudev/deploy-temp/$(ZIP_NAME) -d $(APP_DIR)
 
-        echo "📂 Navigating to project directory"
-        cd /home/vuvudev/apps/umlbasicai-fe/production
+        echo "🧹 Removing uploaded zip..."
+        rm /home/vuvudev/deploy-temp/$(ZIP_NAME)
 
-        echo "🧪 Checking for Node.js and PM2..."
+        echo "📍 Navigating to app directory"
+        cd $(APP_DIR)
+
+        echo "🧪 Checking for Node.js..."
         if ! command -v node > /dev/null; then
           echo "⚙️ Installing Node.js..."
           curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
           sudo apt install -y nodejs
         fi
 
+        echo "🧪 Checking for PM2..."
         if ! command -v pm2 > /dev/null; then
-          echo "⚙️ Installing PM2..."
+          echo "⚙️ Installing PM2 globally..."
           sudo npm install -g pm2
         fi
 
-        echo "📦 Installing dependencies..."
+        echo "📦 Installing project dependencies..."
         npm install
 
-        echo "🔧 Building the app..."
+        echo "🔧 Building Next.js app..."
         npm run build
 
-        echo "🚀 Restarting the app with PM2..."
+        echo "🚀 Starting or restarting app with PM2..."
         pm2 restart ecosystem.config.js || pm2 start ecosystem.config.js
-
