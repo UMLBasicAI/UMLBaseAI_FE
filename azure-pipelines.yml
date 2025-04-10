@@ -22,7 +22,7 @@ steps:
     inputs:
       SonarCloud: 'SonarConnection'
       organization: 'vuvvde170201'
-      scannerMode: 'CLI'
+      scannerMode: 'Other'
       configMode: 'manual'
       projectKey: 'vuvvde170201_UMLBasicAI_FE'
       projectName: 'UMLBasicAI_FE'
