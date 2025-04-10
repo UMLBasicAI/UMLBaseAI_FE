@@ -22,10 +22,11 @@ steps:
     inputs:
       SonarCloud: 'SonarConnection'
       organization: 'vuvvde170201'
-      scannerMode: 'MSBuild'
+      scannerMode: 'Other'
+      configMode: 'manual'
       projectKey: 'vuvvde170201_UMLBasicAI_FE'
       projectName: 'UMLBasicAI_FE'
-      
+
   - task: SonarCloudAnalyze@1
     displayName: 'SonarCloud Analyze'
 
