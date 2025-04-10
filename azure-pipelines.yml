@@ -79,7 +79,11 @@ steps:
         fi
 
         echo "📦 Installing project dependencies..."
+        echo "🧹 Cleaning before install"
+        rm -rf node_modules
+        rm -rf .next
         npm install
+
 
         echo "🔧 Building Next.js app..."
         npm run build
