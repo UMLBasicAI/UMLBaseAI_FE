@@ -21,7 +21,7 @@ steps:
     inputs:
       SonarCloud: 'SonarConnection'
       organization: 'vuvvde170201'
-      scannerMode: 'Other'
+      scannerMode: 'onboarding.azure.pipelines.settings.scanner.run.jsts.bold'
       configMode: 'manual'
       projectKey: 'vuvvde170201_UMLBasicAI_FE'
       projectName: 'UMLBasicAI_FE'
@@ -74,7 +74,7 @@ steps:
         mkdir -p $(APP_DIR)
 
   - task: SSH@0
-    displayName: '📦 Extract zip to app directory'
+    displayName: 'Extract zip to app directory'
     inputs:
       sshEndpoint: 'AzureVPS'
       runOptions: 'inline'
