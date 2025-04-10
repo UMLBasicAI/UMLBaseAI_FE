@@ -11,6 +11,7 @@ variables:
 
 steps:
   - checkout: self
+    fetchDepth: 0
 
   - task: UseNode@1
     inputs:
@@ -21,13 +22,13 @@ steps:
     inputs:
       SonarCloud: 'SonarConnection'
       organization: 'vuvvde170201'
-      scannerMode: 'onboarding.azure.pipelines.settings.scanner.run.jsts.bold'
+      scannerMode: 'CLI'
       configMode: 'manual'
       projectKey: 'vuvvde170201_UMLBasicAI_FE'
       projectName: 'UMLBasicAI_FE'
   - script: |
       echo "Installing dependencies..."
-      npm install
+      npm install --loglevel=error --no-fund --no-audit
     displayName: 'Install Dependencies'
   - script: |
       echo "Building Next.js frontend..."
