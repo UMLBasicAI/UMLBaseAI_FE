@@ -12,7 +12,6 @@ variables:
 steps:
   - checkout: self
 
-  # Dùng Node 18
   - task: UseNode@1
     inputs:
       version: '$(NODE_VERSION)'
@@ -44,17 +43,18 @@ steps:
     inputs:
       pollingTimeoutSec: '300'
 
-  # Nén project loại trừ node_modules, .next, deploy-temp...
   - task: Bash@3
-    displayName: 'Zip project'
+    displayName: '📦 Zip project'
     inputs:
       targetType: 'inline'
       script: |
         echo "📦 Zipping project without node_modules and unnecessary folders"
-        zip -r $(Build.ArtifactStagingDirectory)/$(ZIP_NAME) . \
-          -x "**/node_modules/*" "**/.next/*" "**/deploy-temp/*" "**/.git/*" "**/.vscode/*"
+        ZIP_PATH="$(Build.ArtifactStagingDirectory)/$(ZIP_NAME)"
+        echo "Creating zip at: $ZIP_PATH"
+        zip -r "$ZIP_PATH" . \
+          -x "./node_modules/*" "./.next/*" "./deploy-temp/*" "./.git/*" "./.vscode/*" \
+          -x "*/node_modules/*" "*/.next/*" "*/deploy-temp/*" "*/.git/*" "*/.vscode/*"
 
-  # Upload file zip lên VPS
   - task: CopyFilesOverSSH@0
     displayName: 'Copy zip file to VPS'
     inputs:
@@ -63,50 +63,72 @@ steps:
       contents: '$(ZIP_NAME)'
       targetFolder: '/home/vuvudev/deploy-temp'
 
-  # SSH vào VPS để deploy app
   - task: SSH@0
-    displayName: 'SSH deploy and run app'
+    displayName: '📂 Clean & prepare app directory on VPS'
     inputs:
       sshEndpoint: 'AzureVPS'
       runOptions: 'inline'
       inline: |
         set -e
-
-        echo "📂 Clean old production folder (optional)"
         rm -rf $(APP_DIR)
         mkdir -p $(APP_DIR)
 
-        echo "📦 Extracting zip to $(APP_DIR)..."
+  - task: SSH@0
+    displayName: '📦 Extract zip to app directory'
+    inputs:
+      sshEndpoint: 'AzureVPS'
+      runOptions: 'inline'
+      inline: |
         unzip -o /home/vuvudev/deploy-temp/$(ZIP_NAME) -d $(APP_DIR)
-
-        echo "🧹 Removing uploaded zip..."
         rm /home/vuvudev/deploy-temp/$(ZIP_NAME)
 
-        echo "📍 Navigating to app directory"
-        cd $(APP_DIR)
-
-        echo "🧪 Checking for Node.js..."
+  - task: SSH@0
+    displayName: '🧪 Check & install Node.js'
+    inputs:
+      sshEndpoint: 'AzureVPS'
+      runOptions: 'inline'
+      inline: |
         if ! command -v node > /dev/null; then
           echo "⚙️ Installing Node.js..."
           curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
           sudo apt install -y nodejs
         fi
 
-        echo "🧪 Checking for PM2..."
+  - task: SSH@0
+    displayName: '🧪 Check & install PM2'
+    inputs:
+      sshEndpoint: 'AzureVPS'
+      runOptions: 'inline'
+      inline: |
         if ! command -v pm2 > /dev/null; then
           echo "⚙️ Installing PM2 globally..."
           sudo npm install -g pm2
         fi
 
-        echo "📦 Installing project dependencies..."
-        echo "🧹 Cleaning before install"
-        rm -rf node_modules
-        rm -rf .next
+  - task: SSH@0
+    displayName: '📦 Install dependencies'
+    inputs:
+      sshEndpoint: 'AzureVPS'
+      runOptions: 'inline'
+      inline: |
+        cd $(APP_DIR)
+        rm -rf node_modules .next
         npm install --loglevel=error --no-fund --no-audit
 
-
-        echo "🔧 Building Next.js app..."
+  - task: SSH@0
+    displayName: '🔧 Build Next.js app'
+    inputs:
+      sshEndpoint: 'AzureVPS'
+      runOptions: 'inline'
+      inline: |
+        cd $(APP_DIR)
         npm run build
 
-        echo "🚀 Starting or restarting app with PM2..."
+  - task: SSH@0
+    displayName: '🚀 Start or restart app with PM2'
+    inputs:
+      sshEndpoint: 'AzureVPS'
+      runOptions: 'inline'
+      inline: |
+        cd $(APP_DIR)
         pm2 restart ecosystem.config.js || pm2 start ecosystem.config.js
