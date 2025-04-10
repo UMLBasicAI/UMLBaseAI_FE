@@ -24,8 +24,6 @@ steps:
       organization: 'vuvvde170201'
       scannerMode: 'Other'
       configMode: 'manual'
-      projectKey: 'vuvvde170201_UMLBasicAI_FE'
-      projectName: 'UMLBasicAI_FE'
   - script: |
       echo "Installing dependencies..."
       npm install --loglevel=error --no-fund --no-audit
