@@ -44,7 +44,7 @@ steps:
       pollingTimeoutSec: '300'
 
   - task: Bash@3
-    displayName: '📦 Zip project'
+    displayName: 'Zip project'
     inputs:
       targetType: 'inline'
       script: |
@@ -64,7 +64,7 @@ steps:
       targetFolder: '/home/vuvudev/deploy-temp'
 
   - task: SSH@0
-    displayName: '📂 Clean & prepare app directory on VPS'
+    displayName: 'Clean & prepare app directory on VPS'
     inputs:
       sshEndpoint: 'AzureVPS'
       runOptions: 'inline'
@@ -83,30 +83,30 @@ steps:
         rm /home/vuvudev/deploy-temp/$(ZIP_NAME)
 
   - task: SSH@0
-    displayName: '🧪 Check & install Node.js'
+    displayName: 'Check & install Node.js'
     inputs:
       sshEndpoint: 'AzureVPS'
       runOptions: 'inline'
       inline: |
         if ! command -v node > /dev/null; then
-          echo "⚙️ Installing Node.js..."
+          echo "Installing Node.js..."
           curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
           sudo apt install -y nodejs
         fi
 
   - task: SSH@0
-    displayName: '🧪 Check & install PM2'
+    displayName: 'Check & install PM2'
     inputs:
       sshEndpoint: 'AzureVPS'
       runOptions: 'inline'
       inline: |
         if ! command -v pm2 > /dev/null; then
-          echo "⚙️ Installing PM2 globally..."
+          echo "Installing PM2 globally..."
           sudo npm install -g pm2
         fi
 
   - task: SSH@0
-    displayName: '📦 Install dependencies'
+    displayName: 'Install dependencies'
     inputs:
       sshEndpoint: 'AzureVPS'
       runOptions: 'inline'
@@ -116,7 +116,7 @@ steps:
         npm install --loglevel=error --no-fund --no-audit
 
   - task: SSH@0
-    displayName: '🔧 Build Next.js app'
+    displayName: 'Build Next.js app'
     inputs:
       sshEndpoint: 'AzureVPS'
       runOptions: 'inline'
@@ -125,7 +125,7 @@ steps:
         npm run build
 
   - task: SSH@0
-    displayName: '🚀 Start or restart app with PM2'
+    displayName: 'Start or restart app with PM2'
     inputs:
       sshEndpoint: 'AzureVPS'
       runOptions: 'inline'
