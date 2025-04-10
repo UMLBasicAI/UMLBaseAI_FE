@@ -29,7 +29,7 @@ jobs:
             - src
             - tsconfig.json
             - tailwind.config.ts
-            - postcss.config.mjs
+            - postcss.config.mjs  
             
   deploy:
     docker:
