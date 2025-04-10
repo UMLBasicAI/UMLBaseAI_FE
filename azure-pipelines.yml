@@ -44,28 +44,27 @@ steps:
 
   # SSH vào VPS để giải nén, cài package và chạy app bằng PM2
   - task: SSH@0
+    displayName: 'SSH into VPS to extract and run the app'
     inputs:
       sshEndpoint: 'AzureVPS'
-      runOptions: 'commands'
-      commands: |
+      runOptions: 'inline'
+      inline: |
         set -e
 
-        echo "📁 Tạo thư mục đích nếu chưa có"
-        mkdir -p $(APP_DIR)
+        echo "📦 Extracting zip..."
+        unzip -o /home/vuvudev/deploy-temp/umlbasicai-fe.zip -d /home/vuvudev/apps/umlbasicai-fe/production
 
-        echo "📦 Giải nén project..."
-        unzip -o /home/vuvudev/deploy-temp/$(ZIP_NAME) -d $(APP_DIR)
+        echo "🧹 Deleting zip file after extraction"
+        rm /home/vuvudev/deploy-temp/umlbasicai-fe.zip
 
-        echo "🧹 Xóa file zip sau khi giải nén"
-        rm /home/vuvudev/deploy-temp/$(ZIP_NAME)
+        echo "📂 Navigating to project directory"
+        cd /home/vuvudev/apps/umlbasicai-fe/production
 
-        cd $(APP_DIR)
-
-        echo "🧪 Kiểm tra Node.js và PM2..."
+        echo "🧪 Checking for Node.js and PM2..."
         if ! command -v node > /dev/null; then
           echo "⚙️ Installing Node.js..."
           curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-          sudo apt-get install -y nodejs
+          sudo apt install -y nodejs
         fi
 
         if ! command -v pm2 > /dev/null; then
@@ -73,11 +72,12 @@ steps:
           sudo npm install -g pm2
         fi
 
-        echo "📦 Cài dependencies..."
+        echo "📦 Installing dependencies..."
         npm install
 
-        echo "🔧 Rebuild app lần nữa nếu cần..."
+        echo "🔧 Building the app..."
         npm run build
 
-        echo "🚀 Restart hoặc start bằng PM2..."
+        echo "🚀 Restarting the app with PM2..."
         pm2 restart ecosystem.config.js || pm2 start ecosystem.config.js
+
