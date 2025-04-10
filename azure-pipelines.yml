@@ -22,8 +22,10 @@ steps:
     inputs:
       SonarCloud: 'SonarConnection'
       organization: 'vuvvde170201'
-      scannerMode: 'Other'
+      scannerMode: 'CLI'
       configMode: 'manual'
+      cliProjectKey: 'vuvvde170201_UMLBasicAI_FE'
+      cliProjectName: 'UMLBasicAI_FE'           
   - script: |
       echo "Installing dependencies..."
       npm install --loglevel=error --no-fund --no-audit
