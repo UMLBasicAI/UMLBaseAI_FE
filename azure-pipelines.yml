@@ -26,9 +26,18 @@ steps:
       configMode: 'manual'
       projectKey: 'vuvvde170201_UMLBasicAI_FE'
       projectName: 'UMLBasicAI_FE'
+  - script: |
+      echo "Installing dependencies..."
+      npm install
+    displayName: 'Install Dependencies'
+  - script: |
+      echo "Building Next.js frontend..."
+      npm run build
+    displayName: 'Build Project'
 
   - task: SonarCloudAnalyze@1
     displayName: 'SonarCloud Analyze'
+
 
   - task: SonarCloudPublish@1
     displayName: 'SonarCloud Publish'
