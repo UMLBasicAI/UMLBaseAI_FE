@@ -82,7 +82,7 @@ steps:
         echo "🧹 Cleaning before install"
         rm -rf node_modules
         rm -rf .next
-        npm install
+        npm install --loglevel=error --no-fund --no-audit
 
 
         echo "🔧 Building Next.js app..."
