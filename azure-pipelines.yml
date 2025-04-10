@@ -17,9 +17,26 @@ steps:
     inputs:
       version: '$(NODE_VERSION)'
 
+  - task: SonarCloudPrepare@1
+    displayName: 'SonarCloud Prepare'
+    inputs:
+      SonarCloud: 'SonarConnection'
+      organization: 'vuvvde170201'
+      scannerMode: 'MSBuild'
+      projectKey: 'vuvvde170201_UMLBasicAI_FE'
+      projectName: 'UMLBasicAI_FE'
+      
+  - task: SonarCloudAnalyze@1
+    displayName: 'SonarCloud Analyze'
+
+  - task: SonarCloudPublish@1
+    displayName: 'SonarCloud Publish'
+    inputs:
+      pollingTimeoutSec: '300'
+
   # Nén project loại trừ node_modules, .next, deploy-temp...
   - task: Bash@3
-    displayName: 'Zip project without node_modules'
+    displayName: 'Zip project'
     inputs:
       targetType: 'inline'
       script: |
@@ -29,6 +46,7 @@ steps:
 
   # Upload file zip lên VPS
   - task: CopyFilesOverSSH@0
+    displayName: 'Copy zip file to VPS'
     inputs:
       sshEndpoint: 'AzureVPS'
       sourceFolder: '$(Build.ArtifactStagingDirectory)'
