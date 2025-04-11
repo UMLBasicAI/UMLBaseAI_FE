@@ -41,6 +41,7 @@ jobs:
           root: .
           paths:
             - .next
+            - node_modules
             - public
             - package.json
             - package-lock.json
