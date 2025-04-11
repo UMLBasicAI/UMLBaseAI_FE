@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from "react"
+import PlantUMLViewer from "../UMLViewer"
+import CodeMirror from '@uiw/react-codemirror'
 
 interface CodePreviewProps {
   code: string
@@ -9,6 +11,7 @@ interface CodePreviewProps {
 export default function CodePreview({ code }: CodePreviewProps) {
   const [copied, setCopied] = useState(false)
   const [viewMode, setViewMode] = useState<"preview" | "code">("code")
+  const [editorCode, setEditorCode] = useState(code)
 
   const handleCopy = () => {
     navigator.clipboard.writeText(code)
@@ -23,9 +26,8 @@ export default function CodePreview({ code }: CodePreviewProps) {
         <div className="flex space-x-2">
           <button
             onClick={() => setViewMode("code")}
-            className={`px-3 py-1 text-sm rounded-md ${
-              viewMode === "code" ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-800 hover:bg-gray-200"
-            }`}
+            className={`px-3 py-1 text-sm rounded-md ${viewMode === "code" ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+              }`}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -44,20 +46,22 @@ export default function CodePreview({ code }: CodePreviewProps) {
           </button>
           <button
             onClick={() => setViewMode("preview")}
-            className={`px-3 py-1 text-sm rounded-md ${
-              viewMode === "preview" ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-800 hover:bg-gray-200"
-            }`}
+            className={`px-3 py-1 text-sm rounded-md ${viewMode === "preview" ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+              }`}
           >
             Preview
           </button>
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto">
-        {viewMode === "code" ? (
-          <div className="relative">
-            <pre className="p-4 text-sm bg-gray-900 text-gray-100 h-full overflow-auto">
-              <code>{code}</code>
+      <div className="flex-1 overflow-auto">        
+          <div className={`${viewMode === "code" ? "block" : "hidden"} relative`}>
+            <pre className="p-4 text-sm bg-gray-900 text-gray-100 h-full ">
+              <CodeMirror
+                value={editorCode}
+                onChange={(value) => setEditorCode(value)}
+                theme="dark"
+              />
             </pre>
             <button
               onClick={handleCopy}
@@ -96,14 +100,11 @@ export default function CodePreview({ code }: CodePreviewProps) {
               )}
             </button>
           </div>
-        ) : (
-          <div className="p-4">
+          <div className={`${viewMode !== "code" ? "block" : "hidden"} p-4`}>
             <div className="p-4 border border-gray-200 rounded-md">
-              <p className="text-gray-500">Preview would render here</p>
-              {/* In a real app, you would render the component here */}
+            <PlantUMLViewer uml={editorCode} key={editorCode} />
             </div>
           </div>
-        )}
       </div>
     </div>
   )

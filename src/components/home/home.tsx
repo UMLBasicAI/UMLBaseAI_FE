@@ -5,7 +5,7 @@ import ChatHistory from "./history-chat"
 import ChatInterface from "./chat-interface"
 import CodePreview from "./code-preview"
 
-export default function Home() {
+export default function HomeComponent() {
     const [leftSidebarOpen, setLeftSidebarOpen] = useState(true)
     const [rightSidebarOpen, setRightSidebarOpen] = useState(true)
   
@@ -28,10 +28,21 @@ export default function Home() {
       { id: "2", title: "Hỏi về React", date: "20/03/2024" },
       { id: "3", title: "Tạo component", date: "18/03/2024" },
     ])
-    const [currentCode, setCurrentCode] = useState(`// Example code
-  function HelloWorld() {
-    return <h1>Hello, World!</h1>;
-  }`)
+    const [currentCode, setCurrentCode] = useState(`@startuml
+
+class Car {
+    +startEngine()
+    +stopEngine()
+}
+
+class ElectricCar {
+    +chargeBattery()
+}
+
+Car <|-- ElectricCar
+
+@enduml
+  `)
   
     // Start resizing the left panel
     const startResizingLeft = (e: React.MouseEvent) => {
