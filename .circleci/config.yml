@@ -59,7 +59,11 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - "SHA256:l773R58oKSwz7pggORkLHL2XxUko5EMWHOMuu2AvS/8"
-
+      - run:
+        name: Install rsync on CI environment
+        command: |
+          sudo apt update && sudo apt install -y rsync
+          
       - attach_workspace:
           at: ~/project
 
