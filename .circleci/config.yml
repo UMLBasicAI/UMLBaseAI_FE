@@ -134,7 +134,7 @@ jobs:
       - run:
           name: Restart with PM2
           command: |
-            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 << 'EOF'
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<<'EOF'
               cd /home/adminplantuml/apps/umlbasicai-fe/production
 
               echo "🔍 Checking if PM2 is installed..."
