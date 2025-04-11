@@ -57,12 +57,12 @@ jobs:
       - run:
           name: Upload zip to VPS
           command: |
-            scp -o StrictHostKeyChecking=no artifacts/$ZIP_NAME vuvudev@<YOUR_SERVER_IP>:/home/vuvudev/deploy-temp/
+            scp -o StrictHostKeyChecking=no artifacts/$ZIP_NAME adminplantuml@20.189.124.231:/home/vuvudev/deploy-temp/
 
       - run:
           name: Clean & prepare app directory on VPS
           command: |
-            ssh -o StrictHostKeyChecking=no vuvudev@<YOUR_SERVER_IP> \<< 'EOF'
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
               set -e
               rm -rf $APP_DIR
               mkdir -p $APP_DIR
@@ -71,7 +71,7 @@ jobs:
       - run:
           name: Extract zip to app directory
           command: |
-            ssh -o StrictHostKeyChecking=no vuvudev@<YOUR_SERVER_IP> \<< 'EOF'
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
               unzip -o /home/vuvudev/deploy-temp/$ZIP_NAME -d $APP_DIR
               rm /home/vuvudev/deploy-temp/$ZIP_NAME
             EOF
@@ -79,7 +79,7 @@ jobs:
       - run:
           name: Install Node.js & PM2 on VPS if not present
           command: |
-            ssh -o StrictHostKeyChecking=no vuvudev@<YOUR_SERVER_IP> << 'EOF'
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
               if ! command -v node > /dev/null; then
                 curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
                 sudo apt install -y nodejs
@@ -92,7 +92,7 @@ jobs:
       - run:
           name: Install dependencies & build on VPS
           command: |
-            ssh -o StrictHostKeyChecking=no vuvudev@<YOUR_SERVER_IP> \<< 'EOF'
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
               cd $APP_DIR
               rm -rf node_modules .next
               npm install --loglevel=error --no-fund --no-audit
@@ -102,7 +102,7 @@ jobs:
       - run:
           name: Restart app with PM2
           command: |
-            ssh -o StrictHostKeyChecking=no vuvudev@<YOUR_SERVER_IP> \<< 'EOF'
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
               cd $APP_DIR
               pm2 restart ecosystem.config.js || pm2 start ecosystem.config.js
             EOF
