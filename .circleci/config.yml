@@ -46,23 +46,23 @@ jobs:
             npm run build
 
       - run:
-          name: Archive project (exclude unnecessary folders)
-          command: |
-            mkdir -p artifacts
-            tar --exclude='node_modules' \
-                --exclude='.next' \
-                --exclude='.git' \
-                --exclude='.vscode' \
-                --exclude='deploy-temp' \
-                --exclude='sonar-scanner-*' \
-                --exclude='.scannerwork' \
-                -czf artifacts/$ZIP_NAME.tar.gz .
-
+        name: Archive project (exclude unnecessary folders)
+        command: |
+          mkdir -p ~/artifacts
+          tar --exclude='node_modules' \
+              --exclude='.next' \
+              --exclude='.git' \
+              --exclude='.vscode' \
+              --exclude='deploy-temp' \
+              --exclude='sonar-scanner-*' \
+              --exclude='.scannerwork' \
+              -czf ~/artifacts/$ZIP_NAME.tar.gz .
 
       - run:
-          name: Upload zip to VPS
-          command: |
-            scp -o StrictHostKeyChecking=no artifacts/$ZIP_NAME adminplantuml@20.189.124.231:/home/adminplantuml/deploy-temp/
+        name: Upload archive to VPS
+        command: |
+          scp -o StrictHostKeyChecking=no ~/artifacts/$ZIP_NAME.tar.gz adminplantuml@20.189.124.231:/home/adminplantuml/deploy-temp/
+
 
       - run:
           name: Clean & prepare app directory on VPS
@@ -76,9 +76,9 @@ jobs:
       - run:
           name: Extract zip to app directory
           command: |
-            ssh -o StrictHostKeyChecking=no vuvudev@<YOUR_SERVER_IP> \<< 'EOF'
-              unzip -o /home/vuvudev/deploy-temp/$ZIP_NAME -d $APP_DIR
-              rm /home/vuvudev/deploy-temp/$ZIP_NAME
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
+              unzip -o /home/adminplantuml/deploy-temp/$ZIP_NAME -d $APP_DIR
+              rm /home/adminplantuml/deploy-temp/$ZIP_NAME
             EOF
 
 
