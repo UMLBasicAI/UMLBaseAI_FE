@@ -58,7 +58,7 @@ jobs:
     steps:
       - add_ssh_keys:
           fingerprints:
-            - "SHA256:tAU0OGff3IHLy0PV3JrdjtizXfq4bAKblpidItk5Clk"
+            - "SHA256:l773R58oKSwz7pggORkLHL2XxUko5EMWHOMuu2AvS/8"
 
       - attach_workspace:
           at: ~/project
@@ -73,7 +73,7 @@ jobs:
           command: |
             APP_DIR="/home/adminplantuml/apps/umlbasicai-fe/production"
 
-            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 <<EOF
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<<EOF
               mkdir -p $APP_DIR
               which rsync || (sudo apt update && sudo apt install rsync -y)
             EOF
@@ -87,7 +87,7 @@ jobs:
       - run:
           name: Install deps & build on VPS
           command: |
-            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 <<EOF
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<<EOF
               cd /home/adminplantuml/apps/umlbasicai-fe/production
               npm install --loglevel=error --no-fund --no-audit
               npm run build
@@ -96,7 +96,7 @@ jobs:
       - run:
           name: Restart with PM2
           command: |
-            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 <<EOF
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<<EOF
               cd /home/adminplantuml/apps/umlbasicai-fe/production
               pm2 restart ecosystem.config.js || pm2 start ecosystem.config.js
             EOF
