@@ -85,16 +85,23 @@ jobs:
           command: |
             APP_DIR="/home/adminplantuml/apps/umlbasicai-fe/production"
 
-            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<<EOF
-              mkdir -p $APP_DIR
-              which rsync || (sudo apt update && sudo apt install rsync -y)
-            EOF
+              echo "🔧 Checking and installing rsync on remote VPS..."
+              ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 "
+                mkdir -p $APP_DIR
+                if ! command -v rsync &> /dev/null; then
+                  echo '🔧 rsync not found. Installing...'
+                  sudo apt update && sudo apt install -y rsync
+                else
+                  echo '✅ rsync already installed.'
+                fi
+              "
 
-            rsync -avz --delete \
-              -e "ssh -o StrictHostKeyChecking=no" \
-              ~/project/.env.production \
-              ~/project/ \
-              adminplantuml@20.189.124.231:$APP_DIR
+              echo "🔄 Syncing files to VPS using rsync..."
+              rsync -avz --delete \
+                -e "ssh -o StrictHostKeyChecking=no" \
+                ~/project/.env.production \
+                ~/project/ \
+                adminplantuml@20.189.124.231:$APP_DIR
 
       - run:
           name: Install deps & build on VPS
