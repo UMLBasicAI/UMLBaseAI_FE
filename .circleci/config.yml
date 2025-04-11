@@ -69,6 +69,18 @@ jobs:
             echo "$ENV_PROD_BASE64" | base64 --decode > ~/project/.env.production
 
       - run:
+          name: Ensure rsync is installed on VPS
+          command: |
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 << 'EOF'
+              if ! command -v rsync &> /dev/null; then
+                echo "Installing rsync..."
+                sudo apt-get update && sudo apt-get install -y rsync
+              else
+                echo "rsync is already installed."
+              fi
+            EOF
+            
+      - run:
           name: Sync project files to VPS using rsync
           command: |
             APP_DIR="/home/adminplantuml/apps/umlbasicai-fe/production"
