@@ -1,117 +1,113 @@
 version: 2.1
 
 orbs:
-  node: circleci/node@5
+  node: circleci/node@5.1.0
+
+executors:
+  node-executor:
+    docker:
+      - image: cimg/node:18.20
+    working_directory: ~/project
 
 jobs:
-  build:
-    executor: node/default
+  build-and-deploy:
+    executor: node-executor
+    environment:
+      ZIP_NAME: umlbasicai-fe.zip
+      APP_DIR: /home/vuvudev/apps/umlbasicai-fe/production
     steps:
       - checkout
 
-      - node/install-packages:
-          pkg-manager: npm
-
       - run:
-          name: Build Next.js App
-          command: npm run build
-
-      - persist_to_workspace:
-          root: .
-          paths:
-            - .next
-            - public
-            - package.json
-            - package-lock.json
-            - node_modules
-            - ecosystem.config.js
-            - next.config.mjs
-            - src
-            - tsconfig.json
-            - tailwind.config.ts
-            - postcss.config.mjs  
-            
-  deploy:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - add_ssh_keys:
-          fingerprints:
-            - "	SHA256:tAU0OGff3IHLy0PV3JrdjtizXfq4bAKblpidItk5Clk"
-
-      - attach_workspace:
-          at: ~/project
-
-      - run:
-          name: Create .env.production from ENV_PROD_BASE64
+          name: Install dependencies
           command: |
-            echo "$ENV_PROD_BASE64" | base64 --decode > ~/project/.env.production
+            echo "Installing dependencies..."
+            npm install --loglevel=error --no-fund --no-audit
 
       - run:
-          name: Sync project files to Azure VPS
+          name: SonarCloud Scan
           command: |
-            APP_DIR="/home/vuvudev/apps/umlbasicai-fe/production"
-            
-            echo "📁 Checking if $APP_DIR exists..."
-              if [ ! -d "$APP_DIR" ]; then
-                echo "📂 Creating $APP_DIR..."
-                mkdir -p ~/apps/umlbasicai-fe/production
-              else
-                echo "✅ $APP_DIR already exists."
-              fi
+            curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+            unzip sonar-scanner.zip
+            export PATH=$PATH:$PWD/sonar-scanner-5.0.1.3006-linux/bin
 
-            echo "🔍 Checking and installing rsync if needed..."
-              if ! command -v rsync &> /dev/null; then
-                echo "🔧 Installing rsync..."
-                sudo apt update && sudo apt install rsync -y
-              fi
-
-            echo "🔄 Syncing files to VPS using rsync..."
-            rsync -avz --delete \
-              -e "ssh -o StrictHostKeyChecking=no" \
-              ~/project/.env.production \
-              ~/project/ \
-              vuvudev@20.2.88.32:$APP_DIR
+            sonar-scanner \
+              -Dsonar.projectKey=UMLBasicAI_UMLBaseAI_FE \
+              -Dsonar.organization=UMLBasicAI \
+              -Dsonar.sources=. \
+              -Dsonar.host.url=https://sonarcloud.io \
+              -Dsonar.login=$SONAR_TOKEN
 
 
       - run:
-          name: Install and restart app on VPS
+          name: Build Project
           command: |
-            ssh -o StrictHostKeyChecking=no vuvudev@20.2.88.32 \<< 'EOF'
+            echo "Building Next.js frontend..."
+            npm run build
+
+      - run:
+          name: Zip project (exclude node_modules, .next, etc.)
+          command: |
+            sudo apt-get update && sudo apt-get install zip -y
+            mkdir -p artifacts
+            zip -r artifacts/$ZIP_NAME . \
+              -x "node_modules/*" ".next/*" "deploy-temp/*" ".git/*" ".vscode/*" \
+              -x "*/node_modules/*" "*/.next/*" "*/deploy-temp/*" "*/.git/*" "*/.vscode/*"
+
+      - run:
+          name: Upload zip to VPS
+          command: |
+            scp -o StrictHostKeyChecking=no artifacts/$ZIP_NAME vuvudev@<YOUR_SERVER_IP>:/home/vuvudev/deploy-temp/
+
+      - run:
+          name: Clean & prepare app directory on VPS
+          command: |
+            ssh -o StrictHostKeyChecking=no vuvudev@<YOUR_SERVER_IP> << 'EOF'
               set -e
+              rm -rf $APP_DIR
+              mkdir -p $APP_DIR
+            EOF
 
-              APP_DIR="/home/vuvudev/apps/umlbasicai-fe/production"
-              cd $APP_DIR
+      - run:
+          name: Extract zip to app directory
+          command: |
+            ssh -o StrictHostKeyChecking=no vuvudev@<YOUR_SERVER_IP> << 'EOF'
+              unzip -o /home/vuvudev/deploy-temp/$ZIP_NAME -d $APP_DIR
+              rm /home/vuvudev/deploy-temp/$ZIP_NAME
+            EOF
 
-              echo "🧪 Checking for Node.js and PM2..."
+      - run:
+          name: Install Node.js & PM2 on VPS if not present
+          command: |
+            ssh -o StrictHostKeyChecking=no vuvudev@<YOUR_SERVER_IP> << 'EOF'
               if ! command -v node > /dev/null; then
-                echo "⚙️ Installing Node.js..."
                 curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-                sudo apt-get install -y nodejs
+                sudo apt install -y nodejs
               fi
-
               if ! command -v pm2 > /dev/null; then
-                echo "⚙️ Installing PM2..."
                 sudo npm install -g pm2
               fi
+            EOF
 
-              echo "📦 Installing dependencies..."
-              npm install
-
-              echo "🔧 Building the application..."
+      - run:
+          name: Install dependencies & build on VPS
+          command: |
+            ssh -o StrictHostKeyChecking=no vuvudev@<YOUR_SERVER_IP> << 'EOF'
+              cd $APP_DIR
+              rm -rf node_modules .next
+              npm install --loglevel=error --no-fund --no-audit
               npm run build
+            EOF
 
-              echo "🚀 Restarting app with PM2..."
+      - run:
+          name: Restart app with PM2
+          command: |
+            ssh -o StrictHostKeyChecking=no vuvudev@<YOUR_SERVER_IP> << 'EOF'
+              cd $APP_DIR
               pm2 restart ecosystem.config.js || pm2 start ecosystem.config.js
             EOF
 
 workflows:
-  build-and-deploy:
+  build-deploy:
     jobs:
-      - build
-      - deploy:
-          requires:
-            - build
-          filters:
-            branches:
-              only: main
+      - build-and-deploy
