@@ -13,7 +13,7 @@ jobs:
   build-and-deploy:
     executor: node-executor
     environment:
-      ZIP_NAME: umlbasicai-fe.zip
+      ZIP_NAME: umlbasicai-fe
       APP_DIR: /home/adminplantuml/apps/umlbasicai-fe/production
     steps:
       - checkout
@@ -46,13 +46,18 @@ jobs:
             npm run build
 
       - run:
-          name: Zip project (exclude node_modules, .next, etc.)
+          name: Archive project (exclude unnecessary folders)
           command: |
-            sudo apt-get update && sudo apt-get install zip -y
             mkdir -p artifacts
-            zip -r artifacts/$ZIP_NAME . \
-              -x "node_modules/*" ".next/*" "deploy-temp/*" ".git/*" ".vscode/*" \
-              -x "*/node_modules/*" "*/.next/*" "*/deploy-temp/*" "*/.git/*" "*/.vscode/*"
+            tar --exclude='node_modules' \
+                --exclude='.next' \
+                --exclude='.git' \
+                --exclude='.vscode' \
+                --exclude='deploy-temp' \
+                --exclude='sonar-scanner-*' \
+                --exclude='.scannerwork' \
+                -czf artifacts/$ZIP_NAME.tar.gz .
+
 
       - run:
           name: Upload zip to VPS
@@ -71,10 +76,11 @@ jobs:
       - run:
           name: Extract zip to app directory
           command: |
-            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
-              unzip -o /home/adminplantuml/deploy-temp/$ZIP_NAME -d $APP_DIR
-              rm /home/adminplantuml/deploy-temp/$ZIP_NAME
+            ssh -o StrictHostKeyChecking=no vuvudev@<YOUR_SERVER_IP> \<< 'EOF'
+              unzip -o /home/vuvudev/deploy-temp/$ZIP_NAME -d $APP_DIR
+              rm /home/vuvudev/deploy-temp/$ZIP_NAME
             EOF
+
 
       - run:
           name: Install Node.js & PM2 on VPS if not present
