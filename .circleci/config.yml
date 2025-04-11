@@ -107,7 +107,7 @@ jobs:
                 adminplantuml@20.189.124.231:$APP_DIR
       
       - run:
-          name: Install Node.js/npm & build on VPS
+          name: Check and Install Node.js/npm
           command: |
             ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
               cd /home/adminplantuml/apps/umlbasicai-fe/production
@@ -120,12 +120,6 @@ jobs:
               else
                 echo "✅ Node.js and npm already installed."
               fi
-
-              echo "📦 Installing dependencies..."
-              npm install --loglevel=error --no-fund --no-audit
-
-              echo "🏗️ Building the project..."
-              npm run build
             EOF
 
       - run:
@@ -140,8 +134,18 @@ jobs:
       - run:
           name: Restart with PM2
           command: |
-            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<<EOF
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 << 'EOF'
               cd /home/adminplantuml/apps/umlbasicai-fe/production
+
+              echo "🔍 Checking if PM2 is installed..."
+              if ! command -v pm2 &> /dev/null; then
+                echo "🔧 PM2 not found. Installing globally..."
+                sudo npm install -g pm2
+              else
+                echo "✅ PM2 already installed."
+              fi
+
+              echo "♻️ Restarting app using PM2..."
               pm2 restart ecosystem.config.js || pm2 start ecosystem.config.js
             EOF
 
