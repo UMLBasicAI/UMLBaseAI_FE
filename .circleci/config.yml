@@ -10,19 +10,16 @@ executors:
     working_directory: ~/project
 
 jobs:
-  build-and-deploy:
+  build:
     executor: node-executor
     environment:
       ZIP_NAME: umlbasicai-fe
-      APP_DIR: /home/adminplantuml/apps/umlbasicai-fe/production
     steps:
       - checkout
 
       - run:
           name: Install dependencies
-          command: |
-            echo "Installing dependencies..."
-            npm install --loglevel=error --no-fund --no-audit
+          command: npm install --loglevel=error --no-fund --no-audit
 
       - run:
           name: SonarCloud Scan
@@ -30,7 +27,6 @@ jobs:
             curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
             unzip sonar-scanner.zip
             export PATH=$PATH:$PWD/sonar-scanner-5.0.1.3006-linux/bin
-
             sonar-scanner \
               -Dsonar.projectKey=UMLBasicAI_UMLBaseAI_FE \
               -Dsonar.organization=umlbasicai \
@@ -38,17 +34,14 @@ jobs:
               -Dsonar.host.url=https://sonarcloud.io \
               -Dsonar.login=$SONAR_TOKEN
 
-
       - run:
           name: Build Project
-          command: |
-            echo "Building Next.js frontend..."
-            npm run build
+          command: npm run build
 
       - run:
           name: Archive project (exclude unnecessary folders)
           command: |
-            mkdir -p ~/artifacts
+            mkdir -p artifacts
             tar --exclude='node_modules' \
                 --exclude='.next' \
                 --exclude='.git' \
@@ -56,18 +49,34 @@ jobs:
                 --exclude='deploy-temp' \
                 --exclude='sonar-scanner-*' \
                 --exclude='.scannerwork' \
-                -czf ~/artifacts/$ZIP_NAME.tar.gz .
+                -czf artifacts/$ZIP_NAME.tar.gz .
 
+      - persist_to_workspace:
+          root: artifacts
+          paths:
+            - umlbasicai-fe.tar.gz
+
+  deploy:
+    executor: node-executor
+    environment:
+      ZIP_NAME: umlbasicai-fe
+      APP_DIR: /home/adminplantuml/apps/umlbasicai-fe/production
+    steps:
+      - attach_workspace:
+          at: ~/artifacts
+
+      - add_ssh_keys:
+          fingerprints:
+            - "SHA256:l773R58oKSwz7pggORkLHL2XxUko5EMWHOMuu2AvS/8" 
       - run:
           name: Upload archive to VPS
           command: |
             scp -o StrictHostKeyChecking=no ~/artifacts/$ZIP_NAME.tar.gz adminplantuml@20.189.124.231:/home/adminplantuml/deploy-temp/
 
-
       - run:
           name: Clean & prepare app directory on VPS
           command: |
-            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 << EOF
               set -e
               rm -rf $APP_DIR
               mkdir -p $APP_DIR
@@ -76,16 +85,15 @@ jobs:
       - run:
           name: Extract zip to app directory
           command: |
-            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
-              unzip -o /home/adminplantuml/deploy-temp/$ZIP_NAME -d $APP_DIR
-              rm /home/adminplantuml/deploy-temp/$ZIP_NAME
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 << EOF
+              tar -xzf /home/adminplantuml/deploy-temp/$ZIP_NAME.tar.gz -C $APP_DIR
+              rm /home/adminplantuml/deploy-temp/$ZIP_NAME.tar.gz
             EOF
-
 
       - run:
           name: Install Node.js & PM2 on VPS if not present
           command: |
-            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 << EOF
               if ! command -v node > /dev/null; then
                 curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
                 sudo apt install -y nodejs
@@ -98,7 +106,7 @@ jobs:
       - run:
           name: Install dependencies & build on VPS
           command: |
-            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 << EOF
               cd $APP_DIR
               rm -rf node_modules .next
               npm install --loglevel=error --no-fund --no-audit
@@ -108,7 +116,7 @@ jobs:
       - run:
           name: Restart app with PM2
           command: |
-            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 << EOF
               cd $APP_DIR
               pm2 restart ecosystem.config.js || pm2 start ecosystem.config.js
             EOF
@@ -116,4 +124,7 @@ jobs:
 workflows:
   build-deploy:
     jobs:
-      - build-and-deploy
+      - build
+      - deploy:
+          requires:
+            - build
