@@ -4,7 +4,7 @@ module.exports = {
         name: "nextjs-app",
         script: "node_modules/next/dist/bin/next",
         args: "start -p 3000",
-        cwd: "/home/vuvudev/apps/umlbasicai-fe/production",
+        cwd: "/home/adminplantuml/apps/umlbasicai-fe/production",
         env: {
           NODE_ENV: "production"
         }
