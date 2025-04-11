@@ -33,7 +33,7 @@ jobs:
 
             sonar-scanner \
               -Dsonar.projectKey=UMLBasicAI_UMLBaseAI_FE \
-              -Dsonar.organization=UMLBasicAI \
+              -Dsonar.organization=umlbasicai \
               -Dsonar.sources=. \
               -Dsonar.host.url=https://sonarcloud.io \
               -Dsonar.login=$SONAR_TOKEN
