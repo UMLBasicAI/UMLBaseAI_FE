@@ -107,26 +107,26 @@ jobs:
                 adminplantuml@20.189.124.231:$APP_DIR
       
       - run:
-        name: Install Node.js/npm & build on VPS
-        command: |
-          ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 << 'EOF'
-            cd /home/adminplantuml/apps/umlbasicai-fe/production
+          name: Install Node.js/npm & build on VPS
+          command: |
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 << 'EOF'
+              cd /home/adminplantuml/apps/umlbasicai-fe/production
 
-            echo "🔍 Checking Node.js and npm..."
-            if ! command -v npm &> /dev/null || ! command -v node &> /dev/null; then
-              echo "🔧 Installing Node.js..."
-              curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-              sudo apt-get install -y nodejs
-            else
-              echo "✅ Node.js and npm already installed."
-            fi
+              echo "🔍 Checking Node.js and npm..."
+              if ! command -v npm &> /dev/null || ! command -v node &> /dev/null; then
+                echo "🔧 Installing Node.js..."
+                curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+                sudo apt-get install -y nodejs
+              else
+                echo "✅ Node.js and npm already installed."
+              fi
 
-            echo "📦 Installing dependencies..."
-            npm install --loglevel=error --no-fund --no-audit
+              echo "📦 Installing dependencies..."
+              npm install --loglevel=error --no-fund --no-audit
 
-            echo "🏗️ Building the project..."
-            npm run build
-          EOF
+              echo "🏗️ Building the project..."
+              npm run build
+            EOF
 
       - run:
           name: Install deps & build on VPS
