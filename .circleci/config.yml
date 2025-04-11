@@ -62,7 +62,7 @@ jobs:
       - run:
           name: Clean & prepare app directory on VPS
           command: |
-            ssh -o StrictHostKeyChecking=no vuvudev@<YOUR_SERVER_IP> << 'EOF'
+            ssh -o StrictHostKeyChecking=no vuvudev@<YOUR_SERVER_IP> \<< 'EOF'
               set -e
               rm -rf $APP_DIR
               mkdir -p $APP_DIR
@@ -71,7 +71,7 @@ jobs:
       - run:
           name: Extract zip to app directory
           command: |
-            ssh -o StrictHostKeyChecking=no vuvudev@<YOUR_SERVER_IP> << 'EOF'
+            ssh -o StrictHostKeyChecking=no vuvudev@<YOUR_SERVER_IP> \<< 'EOF'
               unzip -o /home/vuvudev/deploy-temp/$ZIP_NAME -d $APP_DIR
               rm /home/vuvudev/deploy-temp/$ZIP_NAME
             EOF
@@ -92,7 +92,7 @@ jobs:
       - run:
           name: Install dependencies & build on VPS
           command: |
-            ssh -o StrictHostKeyChecking=no vuvudev@<YOUR_SERVER_IP> << 'EOF'
+            ssh -o StrictHostKeyChecking=no vuvudev@<YOUR_SERVER_IP> \<< 'EOF'
               cd $APP_DIR
               rm -rf node_modules .next
               npm install --loglevel=error --no-fund --no-audit
@@ -102,7 +102,7 @@ jobs:
       - run:
           name: Restart app with PM2
           command: |
-            ssh -o StrictHostKeyChecking=no vuvudev@<YOUR_SERVER_IP> << 'EOF'
+            ssh -o StrictHostKeyChecking=no vuvudev@<YOUR_SERVER_IP> \<< 'EOF'
               cd $APP_DIR
               pm2 restart ecosystem.config.js || pm2 start ecosystem.config.js
             EOF
