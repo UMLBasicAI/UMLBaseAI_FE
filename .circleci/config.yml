@@ -1,43 +1,68 @@
 version: 2.1
 
 orbs:
-  node: circleci/node@5
+  node: circleci/node@5.1.0
+
+executors:
+  node-executor:
+    docker:
+      - image: cimg/node:18.20
+    working_directory: ~/project
 
 jobs:
   build:
-    executor: node/default
+    executor: node-executor
     steps:
       - checkout
 
-      - node/install-packages:
-          pkg-manager: npm
+      - run:
+          name: Install dependencies
+          command: npm install --loglevel=error --no-fund --no-audit
 
       - run:
-          name: Build Next.js App
+          name: SonarCloud Scan
+          command: |
+            curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+            unzip sonar-scanner.zip
+            export PATH=$PATH:$PWD/sonar-scanner-5.0.1.3006-linux/bin
+
+            sonar-scanner \
+              -Dsonar.projectKey=UMLBasicAI_UMLBaseAI_FE \
+              -Dsonar.organization=umlbasicai \
+              -Dsonar.sources=. \
+              -Dsonar.host.url=https://sonarcloud.io \
+              -Dsonar.login=$SONAR_TOKEN
+
+      - run:
+          name: Build Next.js frontend
           command: npm run build
 
       - persist_to_workspace:
           root: .
           paths:
             - .next
+            - node_modules
             - public
             - package.json
             - package-lock.json
-            - node_modules
             - ecosystem.config.js
             - next.config.mjs
             - src
             - tsconfig.json
             - tailwind.config.ts
             - postcss.config.mjs
-            
+
   deploy:
     docker:
       - image: cimg/base:stable
     steps:
       - add_ssh_keys:
           fingerprints:
-            - "	SHA256:tAU0OGff3IHLy0PV3JrdjtizXfq4bAKblpidItk5Clk"
+            - "SHA256:l773R58oKSwz7pggORkLHL2XxUko5EMWHOMuu2AvS/8"
+      - run:
+          name: Install rsync on CI environment
+          command: |
+            sudo apt update && sudo apt install -y rsync
 
       - attach_workspace:
           at: ~/project
@@ -48,70 +73,87 @@ jobs:
             echo "$ENV_PROD_BASE64" | base64 --decode > ~/project/.env.production
 
       - run:
-          name: Sync project files to Azure VPS
+          name: Ensure rsync is installed on VPS
           command: |
-            APP_DIR="/home/vuvudev/apps/umlbasicai-fe/production"
-            
-            echo "📁 Checking if $APP_DIR exists..."
-              if [ ! -d "$APP_DIR" ]; then
-                echo "📂 Creating $APP_DIR..."
-                mkdir -p ~/apps/umlbasicai-fe/production
-              else
-                echo "✅ $APP_DIR already exists."
-              fi
-
-            echo "🔍 Checking and installing rsync if needed..."
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
               if ! command -v rsync &> /dev/null; then
-                echo "🔧 Installing rsync..."
-                sudo apt update && sudo apt install rsync -y
+                echo "Installing rsync..."
+                sudo apt-get update && sudo apt-get install -y rsync
+              else
+                echo "rsync is already installed."
               fi
-
-            echo "🔄 Syncing files to VPS using rsync..."
-            rsync -avz --delete \
-              -e "ssh -o StrictHostKeyChecking=no" \
-              ~/project/.env.production \
-              ~/project/ \
-              vuvudev@20.2.88.32:$APP_DIR
-
+            EOF
 
       - run:
-          name: Install and restart app on VPS
+          name: Sync project files to VPS using rsync
           command: |
-            ssh -o StrictHostKeyChecking=no vuvudev@20.2.88.32 \<< 'EOF'
-              set -e
+            APP_DIR="/home/adminplantuml/apps/umlbasicai-fe/production"
 
-              APP_DIR="/home/vuvudev/apps/umlbasicai-fe/production"
-              cd $APP_DIR
+              echo "🔧 Checking and installing rsync on remote VPS..."
+              ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 "
+                mkdir -p $APP_DIR
+                if ! command -v rsync &> /dev/null; then
+                  echo '🔧 rsync not found. Installing...'
+                  sudo apt update && sudo apt install -y rsync
+                else
+                  echo '✅ rsync already installed.'
+                fi
+              "
 
-              echo "🧪 Checking for Node.js and PM2..."
-              if ! command -v node > /dev/null; then
-                echo "⚙️ Installing Node.js..."
+              echo "🔄 Syncing files to VPS using rsync..."
+              rsync -avz --delete \
+                -e "ssh -o StrictHostKeyChecking=no" \
+                ~/project/.env.production \
+                ~/project/ \
+                adminplantuml@20.189.124.231:$APP_DIR
+      
+      - run:
+          name: Check and Install Node.js/npm
+          command: |
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
+              cd /home/adminplantuml/apps/umlbasicai-fe/production
+
+              echo "🔍 Checking Node.js and npm..."
+              if ! command -v npm &> /dev/null || ! command -v node &> /dev/null; then
+                echo "🔧 Installing Node.js..."
                 curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
                 sudo apt-get install -y nodejs
+              else
+                echo "✅ Node.js and npm already installed."
               fi
+            EOF
 
-              if ! command -v pm2 > /dev/null; then
-                echo "⚙️ Installing PM2..."
-                sudo npm install -g pm2
-              fi
-
-              echo "📦 Installing dependencies..."
-              npm install
-
-              echo "🔧 Building the application..."
+      - run:
+          name: Install deps & build on VPS
+          command: |
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<<EOF
+              cd /home/adminplantuml/apps/umlbasicai-fe/production
+              npm install --loglevel=error --no-fund --no-audit
               npm run build
+            EOF
 
-              echo "🚀 Restarting app with PM2..."
+      - run:
+          name: Restart with PM2
+          command: |
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<<'EOF'
+              cd /home/adminplantuml/apps/umlbasicai-fe/production
+
+              echo "🔍 Checking if PM2 is installed..."
+              if ! command -v pm2 &> /dev/null; then
+                echo "🔧 PM2 not found. Installing globally..."
+                sudo npm install -g pm2
+              else
+                echo "✅ PM2 already installed."
+              fi
+
+              echo "♻️ Restarting app using PM2..."
               pm2 restart ecosystem.config.js || pm2 start ecosystem.config.js
             EOF
 
 workflows:
-  build-and-deploy:
+  build-deploy:
     jobs:
       - build
       - deploy:
           requires:
             - build
-          filters:
-            branches:
-              only: main
