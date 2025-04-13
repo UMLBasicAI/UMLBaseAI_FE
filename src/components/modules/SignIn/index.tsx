@@ -63,7 +63,7 @@ export default function SignIn() {
 
       setTimeout(() => {
         login(userData)
-        router.push("/chat/1")
+        router.push("/chat")
       }, 1000)
     } catch (error) {
       console.error("Login failed:", error)
