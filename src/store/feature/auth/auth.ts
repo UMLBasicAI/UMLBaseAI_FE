@@ -1,10 +1,11 @@
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { userData } from '@/data/authData'
+import { createSlice } from '@reduxjs/toolkit'
 
 export interface IUserInfo {
+    _id: string
+    displayName: string
     email: string
-    avatarUrl: string | null
-    fullName: string | null
-    role: string | null
+    avatarUrl: string
 }
 export interface IAuth {
     user: IUserInfo
@@ -14,12 +15,7 @@ export interface IStorage {
     selectedId: string
 }
 const initialState: IAuth = {
-    user: {
-        email: '',
-        avatarUrl: null,
-        fullName: null,
-        role: null,
-    },
+    user: userData,
 }
 const slice = createSlice({
     name: 'auth',
