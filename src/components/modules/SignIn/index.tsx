@@ -21,7 +21,7 @@ export default function SignIn() {
         message.success('Đăng nhập thành công!')
 
         login(userData)
-        router.push('/home')
+        router.push('/chat/1')
     }
     return (
         <section className="bg-gray-50 dark:bg-gray-900">

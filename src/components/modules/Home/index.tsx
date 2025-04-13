@@ -6,7 +6,7 @@ import MessageBox from '@/components/core/elements/MessageBox'
 import Slider from '@/components/core/elements/SliderChat'
 import { useEffect, useRef, useState } from 'react'
 
-export default function Home() {
+export default function Home({ chatId }: { chatId: string }) {
     // // Default widths for the panels
     // const [leftWidth, setLeftWidth] = useState(260) // 260px default width
     // const [rightWidth, setRightWidth] = useState(380) // 380px default width
@@ -87,7 +87,7 @@ export default function Home() {
         >
             <Slider />
             <>
-                <MessageBox />
+                <MessageBox chatId={chatId} />
                 <CodePreview />
             </>
         </main>

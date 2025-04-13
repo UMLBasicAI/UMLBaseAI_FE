@@ -1,18 +1,42 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
 import ChatInterface from './chat-interface'
+import { useParams } from 'next/navigation'
 
-export default function MessageBox() {
+export default function MessageBox({ chatId }: { chatId: string }) {
     //Authentication
     const [leftSidebarOpen, setLeftSidebarOpen] = useState(true)
     // Default widths for the panels
-
+    const params = useParams()
     const [isResizingLeft, setIsResizingLeft] = useState(false)
 
     const [messages, setMessages] = useState<
         Array<{ role: 'user' | 'assistant'; content: string }>
-    >([{ role: 'assistant', content: 'Xin chào! Tôi có thể giúp gì cho bạn?' }])
+    >([])
 
+    const messageData: any = {
+        '1': [
+            {
+                role: 'assistant',
+                content: 'Xin chào! Tôi có thể giúp gì cho bạn?.',
+            },
+        ],
+        '2': [{ role: 'assistant', content: 'Chào! Bạn đang ở chat 2.' }],
+        '3': [{ role: 'assistant', content: 'Chào! Bạn đang ở chat 333.' }],
+    }
+
+    useEffect(() => {
+        if (chatId && messageData[chatId]) {
+            setMessages(messageData[chatId])
+        } else {
+            setMessages([
+                {
+                    role: 'assistant',
+                    content: 'Xin chào! Tôi có thể giúp gì cho bạn?',
+                },
+            ])
+        }
+    }, [chatId])
     const startResizingLeft = (e: React.MouseEvent) => {
         e.preventDefault()
         setIsResizingLeft(true)
