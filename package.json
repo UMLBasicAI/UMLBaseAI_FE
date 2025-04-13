@@ -21,6 +21,7 @@
     "js-cookie": "^3.0.5",
     "jwt-decode": "^4.0.0",
     "lodash": "^4.17.21",
+    "lucide-react": "^0.488.0",
     "next": "14.2.22",
     "plantuml-encoder": "^1.4.0",
     "react": "^18",

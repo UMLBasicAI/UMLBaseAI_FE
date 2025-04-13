@@ -16,7 +16,7 @@ export default function Header() {
     //
     const { user, logout } = useAuth()
     const handleLogin = () => {
-        router.push('/signIn')
+        router.push('/sign-in')
     }
     return (
         <nav className="relative z-30 flex h-14 items-center justify-between border-b border-gray-200 bg-white px-4">
@@ -42,14 +42,14 @@ export default function Header() {
                 </div>
             </div>
 
-            <div className="hidden items-center space-x-4 md:flex">
+            {/* <div className="hidden items-center space-x-4 md:flex">
                 <button className="px-3 py-1 text-sm font-medium text-gray-600 hover:text-gray-800">
                     Home
                 </button>
                 <button className="px-3 py-1 text-sm font-medium text-gray-600 hover:text-gray-800">
                     About
                 </button>
-            </div>
+            </div> */}
 
             <div className="flex items-center">
                 {user != null ? (
