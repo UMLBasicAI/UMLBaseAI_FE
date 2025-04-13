@@ -3,6 +3,7 @@ import './globals.css'
 import { Montserrat } from 'next/font/google'
 import AppProvider from './provider'
 import { cn } from '@/libs/utils'
+import { AuthProvider } from '@/context/AuthContext'
 
 export const metadata: Metadata = {
     title: 'UML Basic AI',
@@ -20,7 +21,9 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className={cn(montserrat.className)}>
-                <AppProvider>{children}</AppProvider>
+                <AppProvider>
+                    <AuthProvider>{children}</AuthProvider>
+                </AppProvider>
             </body>
         </html>
     )
