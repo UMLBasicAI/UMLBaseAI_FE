@@ -1,13 +1,17 @@
 const webLocalStorage = {
   set(key: string, rawValue: any) {
-    localStorage.setItem(key, JSON.stringify(rawValue));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(key, JSON.stringify(rawValue));
+    }
   },
 
   get(key: string) {
-    const rawData = localStorage.getItem(key) || '';
-    const data = rawData ? JSON.parse(rawData) : null;
-
-    return data;
+    if (typeof window !== 'undefined') {
+      const rawData = localStorage.getItem(key) || '';
+      const data = rawData ? JSON.parse(rawData) : null;
+      return data;
+    }
+    return null;
   },
 };
 

@@ -3,8 +3,6 @@ import { getCookie, setCookie } from 'cookies-next';
 import Cookies from 'js-cookie';
 import constants from '@/settings/constants';
 
-
-
 const webStorageClient = {
   set(key: string, rawValue: any, option?: any) {
     const value = _.isString(rawValue) ? rawValue : JSON?.stringify(rawValue);
