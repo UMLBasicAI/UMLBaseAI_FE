@@ -25,6 +25,7 @@
     "plantuml-encoder": "^1.4.0",
     "react": "^18",
     "react-dom": "^18",
+    "react-icons": "^5.5.0",
     "react-loader-spinner": "^6.1.6",
     "react-redux": "^9.2.0",
     "react-responsive": "^10.0.0",
