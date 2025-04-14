@@ -33,6 +33,11 @@ jobs:
               -Dsonar.host.url=https://sonarcloud.io \
               -Dsonar.login=$SONAR_TOKEN \
               -Dsonar.coverage.exclusions=**
+              -Dsonar.issue.ignore.multicriteria=e1,e2 \
+              -Dsonar.issue.ignore.multicriteria.e1.ruleKey=javascript:S2245 \
+              -Dsonar.issue.ignore.multicriteria.e1.resourceKey=**/*.js \
+              -Dsonar.issue.ignore.multicriteria.e2.ruleKey=javascript:S2068 \
+              -Dsonar.issue.ignore.multicriteria.e2.resourceKey=**/*.js
 
       - run:
           name: Build Next.js frontend

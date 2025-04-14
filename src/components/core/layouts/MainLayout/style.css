@@ -12,8 +12,7 @@
             rgba(136, 209, 233, 0.192),
             rgba(178, 230, 230, 0.3)) !important;
     background-color: #e6f7ff !important;
-    background-size: 300% 300% !important;
+    background-size: cover 300% 300% !important;
     background-blend-mode: soft-light, overlay, multiply !important;
     background-attachment: fixed !important;
-    background-size: cover !important;
 }
