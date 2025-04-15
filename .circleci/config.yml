@@ -220,6 +220,7 @@ jobs:
                 exit 1
                 ;;
             esac
+            echo "ENV_BRANCH=${ENV_BRANCH}"
             ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
               cd /home/adminplantuml/apps/umlbasicai-fe/${ENV_BRANCH}
               npm install --loglevel=error --no-fund --no-audit
