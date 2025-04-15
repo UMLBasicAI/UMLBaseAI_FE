@@ -127,7 +127,7 @@ jobs:
       - run:
           name: Check and Install Node.js/npm
           command: |
-            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 << 'EOF'
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
               cd /home/adminplantuml/apps/umlbasicai-fe/${CIRCLE_BRANCH}
 
               echo "🔍 Checking Node.js and npm..."
@@ -143,7 +143,7 @@ jobs:
       - run:
           name: Install deps & build on VPS
           command: |
-            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 << 'EOF'
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
               cd /home/adminplantuml/apps/umlbasicai-fe/${CIRCLE_BRANCH}
               npm install --loglevel=error --no-fund --no-audit
               npm run build
@@ -152,7 +152,7 @@ jobs:
       - run:
           name: Restart with PM2
           command: |
-            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 << 'EOF'
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
               cd /home/adminplantuml/apps/umlbasicai-fe/${CIRCLE_BRANCH}
 
               echo "🔍 Checking if PM2 is installed..."
