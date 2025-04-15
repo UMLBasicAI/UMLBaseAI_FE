@@ -19,7 +19,7 @@ module.exports = {
       }
     },
     {
-      name: "nextjs-test",
+      name: "nextjs-tst",
       script: "npx",
       args: "next start -p 3002",
       cwd: "/home/adminplantuml/apps/umlbasicai-fe/tst",
