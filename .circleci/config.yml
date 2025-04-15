@@ -172,22 +172,23 @@ jobs:
       - run:
           name: Check and Install Node.js/npm
           command: |
+            case "${CIRCLE_BRANCH}" in
+              main)
+                ENV_BRANCH="production"
+                ;;
+              dev)
+                ENV_BRANCH="development"
+                ;;
+              test)
+                ENV_BRANCH="tst"
+                ;;
+              *)
+                echo "Unknown branch. Skipping deployment."
+                exit 1
+                ;;
+            esac
             ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
-              case "${CIRCLE_BRANCH}" in
-                main)
-                  ENV_BRANCH="production"
-                  ;;
-                dev)
-                  ENV_BRANCH="development"
-                  ;;
-                test)
-                  ENV_BRANCH="tst"
-                  ;;
-                *)
-                  echo "Unknown branch. Skipping deployment."
-                  exit 1
-                  ;;
-              esac
+           
 
               cd /home/adminplantuml/apps/umlbasicai-fe/${ENV_BRANCH}
 
@@ -204,23 +205,22 @@ jobs:
       - run:
           name: Install deps & build on VPS
           command: |
+            case "${CIRCLE_BRANCH}" in
+              main)
+                ENV_BRANCH="production"
+                ;;
+              dev)
+                ENV_BRANCH="development"
+                ;;
+              test)
+                ENV_BRANCH="tst"
+                ;;
+              *)
+                echo "Unknown branch. Skipping deployment."
+                exit 1
+                ;;
+            esac
             ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
-              case "${CIRCLE_BRANCH}" in
-                main)
-                  ENV_BRANCH="production"
-                  ;;
-                dev)
-                  ENV_BRANCH="development"
-                  ;;
-                test)
-                  ENV_BRANCH="tst"
-                  ;;
-                *)
-                  echo "Unknown branch. Skipping deployment."
-                  exit 1
-                  ;;
-              esac
-
               cd /home/adminplantuml/apps/umlbasicai-fe/${ENV_BRANCH}
               npm install --loglevel=error --no-fund --no-audit
               npm run build
@@ -229,22 +229,22 @@ jobs:
       - run:
           name: Restart with PM2
           command: |
+            case "${CIRCLE_BRANCH}" in
+              main)
+                ENV_BRANCH="production"
+                ;;
+              dev)
+                ENV_BRANCH="development"
+                ;;
+              test)
+                ENV_BRANCH="tst"
+                ;;
+              *)
+                echo "Unknown branch. Skipping deployment."
+                exit 1
+                ;;
+            esac
             ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
-              case "${CIRCLE_BRANCH}" in
-                main)
-                  ENV_BRANCH="production"
-                  ;;
-                dev)
-                  ENV_BRANCH="development"
-                  ;;
-                test)
-                  ENV_BRANCH="tst"
-                  ;;
-                *)
-                  echo "Unknown branch. Skipping deployment."
-                  exit 1
-                  ;;
-              esac
 
               cd /home/adminplantuml/apps/umlbasicai-fe/${ENV_BRANCH}
 
