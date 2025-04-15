@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext"
 import { userData } from "@/data/authData"
 import { useExampleRequestLoginMutation } from "@/store/feature/auth/authApi"
 import { useRouter } from "next/navigation"
+import webStorageClient from "@/utils/webStorageClient"
 import { LockIcon, MailIcon, EyeIcon, EyeOffIcon } from "lucide-react"
 import Link from "next/link"
 import { message } from "antd"
@@ -46,32 +47,49 @@ export default function SignIn() {
   }
 
   const handleClickLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-
-    if (!validateForm()) return
-
-    setIsLoading(true)
-
+    e.preventDefault();
+  
+    // Kiểm tra dữ liệu đầu vào
+    if (!validateForm()) return;
+  
+    setIsLoading(true);
+    setErrors({ email: "", password: "" });
+  
     try {
-      await requestLogin({
+      // Gửi yêu cầu đăng nhập và lấy dữ liệu trả về
+      const data = await requestLogin({
         username: email,
-        password: password,
+        password,
         isRemember: rememberMe,
-      })
+      }).unwrap();
+      console.log("Login data:", data);
+      const { accessToken, refreshToken } = data.body;
 
-      message.success("Login successful! Redirecting...")
-
+      console.log("Login response:", { accessToken, refreshToken });
+      
+  
+      // Lưu token vào local/session storage
+      webStorageClient.setToken(accessToken);
+      webStorageClient.setRefreshToken(refreshToken);
+  
+      // Thông báo thành công
+      message.success("Login successful! Redirecting...");
+  
+      // Chuyển hướng sau một chút delay
       setTimeout(() => {
-        login(userData)
-        router.push("/chat")
-      }, 1000)
+        login(userData); // (nếu `userData` là mock thì nên bỏ)
+        router.push("/chat");
+      }, 1000);
     } catch (error) {
-      console.error("Login failed:", error)
-      setErrors({ ...errors, password: "Invalid credentials" })
+      console.error("Login failed:", error);
+      setErrors(prev => ({ ...prev, password: "Invalid credentials" }));
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
+  
+
+
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword)

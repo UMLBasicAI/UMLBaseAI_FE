@@ -72,29 +72,52 @@ export default function SignUp() {
     return valid
   }
 
+
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-
-    if (!validateForm()) return
-
-    setIsLoading(true)
-
+    e.preventDefault();
+  
+    if (!validateForm()) return;
+  
+    setIsLoading(true);
+  
     try {
-     
+      const response = await requestSignUp({
+        username: email.split('@')[0],
+        password,
+        email,
+      }).unwrap();
 
-      message.success("Sign up successful! Redirecting...")
-
-      setTimeout(() => {
-        login(userData)
-        router.push("/chat")
-      }, 1000)
-    } catch (error) {
-      console.error("Sign up failed:", error)
-      message.error("Sign up failed. Please try again.")
+      if (response?.appCode === "VALIDATION_FAILED") {
+        // const validationErrors = response?.data?.validationErrors || {};
+        // const newErrors = {
+        //   email: validationErrors.email || "",
+        //   password: validationErrors.password || "",
+        //   confirmPassword: validationErrors.confirmPassword || "",
+        //   terms: validationErrors.terms || "",
+        // };
+        // setErrors(newErrors);
+        message.error("Password must be stronger. Please try again.");
+        router.push("/sign-up");
+      }
+  
+      if (response?.appCode === "SUCCESS") {
+        message.success("Sign up successful! Redirecting to sign in...");
+        setTimeout(() => {
+          router.push("/sign-in"); // hoặc trang login
+        }, 1000);
+      } else {
+        throw new Error("Sign up failed");
+      }
+    } catch (error: any) {
+      console.error("Sign up failed:", error);
+      message.error(
+        error?.data?.message || "Sign up failed. Please try again."
+      );
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
+  
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword)

@@ -7,7 +7,7 @@ export const authApis = baseApi.injectEndpoints({
             query: (params) => ({
                 url: authEndpoint.SIGNIN,
                 body: {
-                    username: params.username,
+                    email: params.username,
                     password: params.password,
                     isRemember: params.isRemember
                 },
