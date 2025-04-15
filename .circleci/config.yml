@@ -84,7 +84,7 @@ jobs:
               dev)
                 ENV_BRANCH="development"
                 ;;
-              test)
+              tst)
                 ENV_BRANCH="tst"
                 ;;
               *)
@@ -109,7 +109,7 @@ jobs:
               dev)
                 ENV_BRANCH="development"
                 ;;
-              test)
+              tst)
                 ENV_BRANCH="tst"
                 ;;
               *)
@@ -123,6 +123,13 @@ jobs:
             echo "ENV_FILE=${ENV_FILE}"
             echo "ENV_BRANCH=${ENV_BRANCH}"
             ls -l ~/${ENV_FILE} || { echo "❌ ${ENV_FILE} not found!"; exit 1; }
+
+            echo "Checking or creating remote directory for ${ENV_BRANCH}..."
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< EOF
+              BASE_DIR="/home/adminplantuml/apps/umlbasicai-fe"
+              TARGET_DIR="\$BASE_DIR/${ENV_BRANCH}"
+              mkdir -p "\$TARGET_DIR"
+            EOF
 
             echo "Copying ${ENV_FILE} to remote server..."
             scp -o StrictHostKeyChecking=no ~/${ENV_FILE} adminplantuml@20.189.124.231:/home/adminplantuml/apps/umlbasicai-fe/${ENV_BRANCH}/${ENV_FILE}
@@ -141,7 +148,7 @@ jobs:
               dev)
                 ENV_BRANCH="development"
                 ;;
-              test)
+              tst)
                 ENV_BRANCH="tst"
                 ;;
               *)
@@ -179,7 +186,7 @@ jobs:
               dev)
                 ENV_BRANCH="development"
                 ;;
-              test)
+              tst)
                 ENV_BRANCH="tst"
                 ;;
               *)
@@ -212,7 +219,7 @@ jobs:
               dev)
                 ENV_BRANCH="development"
                 ;;
-              test)
+              tst)
                 ENV_BRANCH="tst"
                 ;;
               *)
@@ -238,7 +245,7 @@ jobs:
               dev)
                 ENV_BRANCH="development"
                 ;;
-              test)
+              tst)
                 ENV_BRANCH="tst"
                 ;;
               *)
