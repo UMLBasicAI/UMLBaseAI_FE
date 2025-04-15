@@ -47,7 +47,7 @@ jobs:
           root: .
           paths:
             - .next
-            - node_modules
+            # - node_modules
             - public
             - package.json
             - package-lock.json
@@ -128,7 +128,9 @@ jobs:
             scp -o StrictHostKeyChecking=no ~/${ENV_FILE} adminplantuml@20.189.124.231:/home/adminplantuml/apps/umlbasicai-fe/${ENV_BRANCH}/${ENV_FILE}
             echo "${ENV_FILE} has been copied successfully."
 
-
+            echo "Preparing .env file for rsync..."
+            cp ~/${ENV_FILE} ~/project/.env
+            
       - run:
           name: Sync project files to VPS using rsync
           command: |
@@ -164,7 +166,6 @@ jobs:
             echo "🔄 Syncing files to VPS using rsync..."
             rsync -avz --delete \
               -e "ssh -o StrictHostKeyChecking=no" \
-              ~/project/.env \
               ~/project/ \
               adminplantuml@20.189.124.231:$APP_DIR
 
