@@ -61,6 +61,9 @@ export default function SignUp() {
     } else if (password !== confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match"
       valid = false
+    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/.test(password)) {
+      newErrors.password = "Password must include uppercase, lowercase, number, and special character"
+      valid = false
     }
 
     if (!agreeToTerms) {
@@ -87,17 +90,24 @@ export default function SignUp() {
         email,
       }).unwrap();
 
-      if (response?.appCode === "VALIDATION_FAILED") {
-        // const validationErrors = response?.data?.validationErrors || {};
-        // const newErrors = {
-        //   email: validationErrors.email || "",
-        //   password: validationErrors.password || "",
-        //   confirmPassword: validationErrors.confirmPassword || "",
-        //   terms: validationErrors.terms || "",
-        // };
-        // setErrors(newErrors);
-        message.error("Password must be stronger. Please try again.");
-        router.push("/sign-up");
+      if (response?.appCode === "VALIDATION_FAILED" && response?.data?.validationErrors) {
+        const validationErrors = response.data.validationErrors;
+        setErrors((prev) => ({
+          ...prev,
+          email: validationErrors.email || "",
+          password: validationErrors.password || "",
+          confirmPassword: validationErrors.confirmPassword || "",
+          terms: validationErrors.terms || "",
+        }));
+        return;
+      }
+
+      if (response?.appCode === "EMAIL_ALREADY_EXISTS") {
+        setErrors((prev) => ({
+          ...prev,
+          email: "Email already exists. Please use another one.",
+        }));
+        return;
       }
   
       if (response?.appCode === "SUCCESS") {
@@ -109,11 +119,20 @@ export default function SignUp() {
         throw new Error("Sign up failed");
       }
     } catch (error: any) {
-      console.error("Sign up failed:", error);
-      message.error(
-        error?.data?.message || "Sign up failed. Please try again."
-      );
-    } finally {
+  console.error("Sign up failed:", error);
+
+  if (error?.data?.appCode === "EMAIL_ALREADY_EXISTS") {
+    setErrors((prev) => ({
+      ...prev,
+      email: "Email already exists. Please use another one.",
+    }));
+    return;
+  }
+
+  message.error(
+    error?.data?.message || "Sign up failed. Please try again."
+  );
+} finally {
       setIsLoading(false);
     }
   };
