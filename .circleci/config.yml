@@ -73,56 +73,64 @@ jobs:
       - attach_workspace:
           at: ~/project
 
-      - run:
-          name: Create .env.production from ENV_PROD_BASE64
+       - run:
+          name: Set environment and deploy
           command: |
-            echo "$ENV_PROD_BASE64" | base64 --decode > ~/project/.env.production
+            if [ "${CIRCLE_BRANCH}" == "main" ]; then
+              echo "Deploying to Production"
+              ENV_FILE=".env.production"
+            elif [ "${CIRCLE_BRANCH}" == "dev" ]; then
+              echo "Deploying to Development"
+              ENV_FILE=".env.development"
+            elif [ "${CIRCLE_BRANCH}" == "test" ]; then
+              echo "Deploying to Testing"
+              ENV_FILE=".env.tst"
+            else
+              echo "Unknown branch. Skipping deployment."
+              exit 1
+            fi
 
-      - run:
-          name: Ensure rsync is installed on VPS
+            echo "Creating ${ENV_FILE} from ENV_BASE64"
+            echo "$ENV_BASE64" | base64 --decode > ~/${ENV_FILE}
+       - run:
+          name: Copy environment files to remote server
           command: |
-            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
-              if ! command -v rsync &> /dev/null; then
-                echo "Installing rsync..."
-                sudo apt-get update && sudo apt-get install -y rsync
-              else
-                echo "rsync is already installed."
-              fi
-            EOF
-
+            echo "Copying ${ENV_FILE} to remote server..."
+            scp -o StrictHostKeyChecking=no ~/${ENV_FILE} adminplantuml@20.189.124.231:/home/adminplantuml/apps/umlbasicai-fe/production/${ENV_FILE}
+            echo "${ENV_FILE} has been copied successfully."
       - run:
           name: Sync project files to VPS using rsync
           command: |
-            APP_DIR="/home/adminplantuml/apps/umlbasicai-fe/production"
+            APP_DIR="/home/adminplantuml/apps/umlbasicai-fe/${CIRCLE_BRANCH}"
 
-              echo "🔧 Checking and installing rsync on remote VPS..."
-              ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 "
-                mkdir -p $APP_DIR
-                if ! command -v rsync &> /dev/null; then
-                  echo '🔧 rsync not found. Installing...'
-                  sudo apt update && sudo apt install -y rsync
-                else
-                  echo '✅ rsync already installed.'
-                fi
-              "
+            echo "🔧 Checking and installing rsync on remote VPS..."
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 "
+              mkdir -p $APP_DIR
+              if ! command -v rsync &> /dev/null; then
+                echo '🔧 rsync not found. Installing...'
+                sudo apt update && sudo apt install -y rsync
+              else
+                echo '✅ rsync already installed.'
+              fi
+            "
 
-              echo "🔄 Syncing files to VPS using rsync..."
-              rsync -avz --delete \
-                -e "ssh -o StrictHostKeyChecking=no" \
-                ~/project/.env.production \
-                ~/project/ \
-                adminplantuml@20.189.124.231:$APP_DIR
-      
+            echo "🔄 Syncing files to VPS using rsync..."
+            rsync -avz --delete \
+              -e "ssh -o StrictHostKeyChecking=no" \
+              ~/project/.env \
+              ~/project/ \
+              adminplantuml@20.189.124.231:$APP_DIR
+
       - run:
           name: Check and Install Node.js/npm
           command: |
-            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
-              cd /home/adminplantuml/apps/umlbasicai-fe/production
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 << 'EOF'
+              cd /home/adminplantuml/apps/umlbasicai-fe/${CIRCLE_BRANCH}
 
               echo "🔍 Checking Node.js and npm..."
               if ! command -v npm &> /dev/null || ! command -v node &> /dev/null; then
                 echo "🔧 Installing Node.js..."
-                curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+                curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash - 
                 sudo apt-get install -y nodejs
               else
                 echo "✅ Node.js and npm already installed."
@@ -132,8 +140,8 @@ jobs:
       - run:
           name: Install deps & build on VPS
           command: |
-            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<<EOF
-              cd /home/adminplantuml/apps/umlbasicai-fe/production
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 << 'EOF'
+              cd /home/adminplantuml/apps/umlbasicai-fe/${CIRCLE_BRANCH}
               npm install --loglevel=error --no-fund --no-audit
               npm run build
             EOF
@@ -141,8 +149,8 @@ jobs:
       - run:
           name: Restart with PM2
           command: |
-            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<<'EOF'
-              cd /home/adminplantuml/apps/umlbasicai-fe/production
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 << 'EOF'
+              cd /home/adminplantuml/apps/umlbasicai-fe/${CIRCLE_BRANCH}
 
               echo "🔍 Checking if PM2 is installed..."
               if ! command -v pm2 &> /dev/null; then
@@ -165,5 +173,7 @@ workflows:
             - build
           filters:
             branches:
-              only: main
-
+              only:
+                - main
+                - dev
+                - tst
