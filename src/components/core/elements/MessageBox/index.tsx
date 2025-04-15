@@ -2,27 +2,33 @@
 import { useEffect, useRef, useState } from 'react'
 import ChatInterface from './chat-interface'
 import { useParams } from 'next/navigation'
+import { usePromptToAIMutation } from '@/store/feature/ai/aiAPI'
 
 export default function MessageBox({ chatId }: { chatId: string }) {
-    //Authentication
+    //Pending historyId
+    const historyId = undefined;
     const [leftSidebarOpen, setLeftSidebarOpen] = useState(true)
-    // Default widths for the panels
     const params = useParams()
-    const [isResizingLeft, setIsResizingLeft] = useState(false)
+    const [isResizingLeft, setIsResizingLeft] = useState(false)    
+    type Message = {
+        type: 'request' | 'response';
+        content: string;
+        sent_at: string;
+      };
+      
+    const [messages, setMessages] = useState<Message[]>([]);
 
-    const [messages, setMessages] = useState<
-        Array<{ role: 'user' | 'assistant'; content: string }>
-    >([])
 
+    const [triggerPromptToAI] = usePromptToAIMutation();
     const messageData: any = {
         '1': [
             {
-                role: 'assistant',
+                type: 'response',
                 content: 'Xin chào! Tôi có thể giúp gì cho bạn?.',
             },
         ],
-        '2': [{ role: 'assistant', content: 'Chào! Bạn đang ở chat 2.' }],
-        '3': [{ role: 'assistant', content: 'Chào! Bạn đang ở chat 333.' }],
+        '2': [{ type: 'response', content: 'Chào! Bạn đang ở chat 2.' }],
+        '3': [{ type: 'response', content: 'Chào! Bạn đang ở chat 333.' }],
     }
 
     useEffect(() => {
@@ -31,8 +37,9 @@ export default function MessageBox({ chatId }: { chatId: string }) {
         } else {
             setMessages([
                 {
-                    role: 'assistant',
+                    type: 'response',
                     content: 'Xin chào! Tôi có thể giúp gì cho bạn?',
+                    sent_at: ''
                 },
             ])
         }
@@ -42,23 +49,34 @@ export default function MessageBox({ chatId }: { chatId: string }) {
         setIsResizingLeft(true)
     }
 
-    const handleSendMessage = (message: string) => {
-        if (!message.trim()) return
-
-        // Add user message
-        setMessages((prev) => [...prev, { role: 'user', content: message }])
-
-        // Simulate AI response
-        setTimeout(() => {
+    const handleSendMessage = async (message: string) => {
+        if (!message.trim()) return;
+    
+        const sentAt = new Date().toISOString();
+    
+        setMessages((prev) => [
+            ...prev,
+            { type: 'request', content: message, sent_at: sentAt },
+        ]);
+    
+        try {
+            const result = await triggerPromptToAI(
+                historyId ? { historyId, prompt: message  } : { prompt: message }
+            ).unwrap();
+    
+            const responseText = result?.body?.responseText;
+            const aiSentAt = new Date().toISOString();
+    
             setMessages((prev) => [
                 ...prev,
-                {
-                    role: 'assistant',
-                    content: `Đây là phản hồi cho tin nhắn: "${message}"`,
-                },
-            ])
-        }, 1000)
-    }
+                { type: 'response', content: responseText, sent_at: aiSentAt },
+            ]);
+        } catch (err) {
+            alert("AI Call Error");
+            console.error('AI call error:', err);
+        }
+    };
+    
     return (
         <>
             {leftSidebarOpen && (
