@@ -65,6 +65,7 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - "SHA256:l773R58oKSwz7pggORkLHL2XxUko5EMWHOMuu2AvS/8"
+
       - run:
           name: Install rsync on CI environment
           command: |
@@ -73,7 +74,7 @@ jobs:
       - attach_workspace:
           at: ~/project
 
-       - run:
+      - run:
           name: Set environment and deploy
           command: |
             if [ "${CIRCLE_BRANCH}" == "main" ]; then
@@ -92,12 +93,14 @@ jobs:
 
             echo "Creating ${ENV_FILE} from ENV_BASE64"
             echo "$ENV_BASE64" | base64 --decode > ~/${ENV_FILE}
-       - run:
+
+      - run:
           name: Copy environment files to remote server
           command: |
             echo "Copying ${ENV_FILE} to remote server..."
             scp -o StrictHostKeyChecking=no ~/${ENV_FILE} adminplantuml@20.189.124.231:/home/adminplantuml/apps/umlbasicai-fe/production/${ENV_FILE}
             echo "${ENV_FILE} has been copied successfully."
+
       - run:
           name: Sync project files to VPS using rsync
           command: |
