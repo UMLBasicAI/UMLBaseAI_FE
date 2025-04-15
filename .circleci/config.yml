@@ -102,6 +102,10 @@ jobs:
       - run:
           name: Copy environment files to remote server
           command: |
+            echo "ENV_FILE=${ENV_FILE}"
+            echo "ENV_BRANCH=${ENV_BRANCH}"
+            ls -l ~/${ENV_FILE}
+
             echo "Copying ${ENV_FILE} to remote server..."
             scp -o StrictHostKeyChecking=no ~/${ENV_FILE} adminplantuml@20.189.124.231:/home/adminplantuml/apps/umlbasicai-fe/${ENV_BRANCH}/${ENV_FILE}
             echo "${ENV_FILE} has been copied successfully."
