@@ -3,3 +3,7 @@ export const authEndpoint = {
     SIGNUP: '/auth/sign-up',
     SIGNOUT: '/auth/sign-out',
 }
+
+export const aiEndPoint = {
+    PROMPTTOAI: '/prompt-to-ai'
+}
