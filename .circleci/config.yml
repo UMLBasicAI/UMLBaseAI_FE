@@ -77,20 +77,25 @@ jobs:
       - run:
           name: Set environment and deploy
           command: |
-            if [ "${CIRCLE_BRANCH}" == "main" ]; then
-              echo "Deploying to Production"
-              ENV_FILE=".env.production"
-            elif [ "${CIRCLE_BRANCH}" == "dev" ]; then
-              echo "Deploying to Development"
-              ENV_FILE=".env.development"
-            elif [ "${CIRCLE_BRANCH}" == "test" ]; then
-              echo "Deploying to Testing"
-              ENV_FILE=".env.tst"
-            else
-              echo "Unknown branch. Skipping deployment."
-              exit 1
-            fi
+            case "${CIRCLE_BRANCH}" in
+              main)
+                ENV_BRANCH="production"
+                ;;
+              dev)
+                ENV_BRANCH="development"
+                ;;
+              test)
+                ENV_BRANCH="tst"
+                ;;
+              *)
+                echo "Unknown branch. Skipping deployment."
+                exit 1
+                ;;
+            esac
 
+            echo "ENV_BRANCH resolved as ${ENV_BRANCH}"
+
+            ENV_FILE=".env.${ENV_BRANCH}"
             echo "Creating ${ENV_FILE} from ENV_BASE64"
             echo "$ENV_BASE64" | base64 --decode > ~/${ENV_FILE}
 
@@ -98,13 +103,14 @@ jobs:
           name: Copy environment files to remote server
           command: |
             echo "Copying ${ENV_FILE} to remote server..."
-            scp -o StrictHostKeyChecking=no ~/${ENV_FILE} adminplantuml@20.189.124.231:/home/adminplantuml/apps/umlbasicai-fe/production/${ENV_FILE}
+            scp -o StrictHostKeyChecking=no ~/${ENV_FILE} adminplantuml@20.189.124.231:/home/adminplantuml/apps/umlbasicai-fe/${ENV_BRANCH}/${ENV_FILE}
             echo "${ENV_FILE} has been copied successfully."
+
 
       - run:
           name: Sync project files to VPS using rsync
           command: |
-            APP_DIR="/home/adminplantuml/apps/umlbasicai-fe/${CIRCLE_BRANCH}"
+            APP_DIR="/home/adminplantuml/apps/umlbasicai-fe/${ENV_BRANCH}"
 
             echo "🔧 Checking and installing rsync on remote VPS..."
             ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 "
@@ -128,7 +134,7 @@ jobs:
           name: Check and Install Node.js/npm
           command: |
             ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
-              cd /home/adminplantuml/apps/umlbasicai-fe/${CIRCLE_BRANCH}
+              cd /home/adminplantuml/apps/umlbasicai-fe/${ENV_BRANCH}
 
               echo "🔍 Checking Node.js and npm..."
               if ! command -v npm &> /dev/null || ! command -v node &> /dev/null; then
@@ -144,7 +150,7 @@ jobs:
           name: Install deps & build on VPS
           command: |
             ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
-              cd /home/adminplantuml/apps/umlbasicai-fe/${CIRCLE_BRANCH}
+              cd /home/adminplantuml/apps/umlbasicai-fe/${ENV_BRANCH}
               npm install --loglevel=error --no-fund --no-audit
               npm run build
             EOF
@@ -153,7 +159,7 @@ jobs:
           name: Restart with PM2
           command: |
             ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
-              cd /home/adminplantuml/apps/umlbasicai-fe/${CIRCLE_BRANCH}
+              cd /home/adminplantuml/apps/umlbasicai-fe/${ENV_BRANCH}
 
               echo "🔍 Checking if PM2 is installed..."
               if ! command -v pm2 &> /dev/null; then
