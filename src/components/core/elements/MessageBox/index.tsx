@@ -1,82 +1,24 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
 import ChatInterface from './chat-interface'
-import { useParams } from 'next/navigation'
-import { usePromptToAIMutation } from '@/store/feature/ai/aiAPI'
 
-export default function MessageBox({ chatId }: { chatId: string }) {
-    //Pending historyId
-    const historyId = undefined;
+export default function MessageBox({
+    historyId,
+    messages,
+    onSendMessage,
+    isLoading,
+}: {
+    historyId: string
+    messages: Array<{ type: 'request' | 'response'; content: string; sent_at: string }>
+    onSendMessage: (message: string) => void
+    isLoading: boolean
+}) {
     const [leftSidebarOpen, setLeftSidebarOpen] = useState(true)
-    const params = useParams()
-    const [isResizingLeft, setIsResizingLeft] = useState(false)    
-    type Message = {
-        type: 'request' | 'response';
-        content: string;
-        sent_at: string;
-      };
-      
-    const [messages, setMessages] = useState<Message[]>([]);
-
-
-    const [triggerPromptToAI] = usePromptToAIMutation();
-    const messageData: any = {
-        '1': [
-            {
-                type: 'response',
-                content: 'Xin chào! Tôi có thể giúp gì cho bạn?.',
-            },
-        ],
-        '2': [{ type: 'response', content: 'Chào! Bạn đang ở chat 2.' }],
-        '3': [{ type: 'response', content: 'Chào! Bạn đang ở chat 333.' }],
-    }
-
-    useEffect(() => {
-        if (chatId && messageData[chatId]) {
-            setMessages(messageData[chatId])
-        } else {
-            setMessages([
-                {
-                    type: 'response',
-                    content: 'Xin chào! Tôi có thể giúp gì cho bạn?',
-                    sent_at: ''
-                },
-            ])
-        }
-    }, [chatId])
+    const [isResizingLeft, setIsResizingLeft] = useState(false)
     const startResizingLeft = (e: React.MouseEvent) => {
         e.preventDefault()
         setIsResizingLeft(true)
     }
-
-    const handleSendMessage = async (message: string) => {
-        if (!message.trim()) return;
-    
-        const sentAt = new Date().toISOString();
-    
-        setMessages((prev) => [
-            ...prev,
-            { type: 'request', content: message, sent_at: sentAt },
-        ]);
-    
-        try {
-            const result = await triggerPromptToAI(
-                historyId ? { historyId, prompt: message  } : { prompt: message }
-            ).unwrap();
-    
-            const responseText = result?.body?.responseText;
-            const aiSentAt = new Date().toISOString();
-    
-            setMessages((prev) => [
-                ...prev,
-                { type: 'response', content: responseText, sent_at: aiSentAt },
-            ]);
-        } catch (err) {
-            alert("AI Call Error");
-            console.error('AI call error:', err);
-        }
-    };
-    
     return (
         <>
             {leftSidebarOpen && (
@@ -91,11 +33,11 @@ export default function MessageBox({ chatId }: { chatId: string }) {
                 </div>
             )}
 
-            {/* Main Chat Interface */}
             <div className="flex flex-1 flex-col">
                 <ChatInterface
                     messages={messages}
-                    onSendMessage={handleSendMessage}
+                    onSendMessage={onSendMessage}
+                    isLoading={isLoading}
                 />
             </div>
         </>

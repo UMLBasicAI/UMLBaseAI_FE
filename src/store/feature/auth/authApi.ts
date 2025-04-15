@@ -34,7 +34,7 @@ export const authApis = baseApi.injectEndpoints({
                 url: '/example',
                 method: 'GET',
             }),
-            extraOptions: { skipAuth: true }
+            extraOptions: { skipAuth: false }
         })
     }),
 })
