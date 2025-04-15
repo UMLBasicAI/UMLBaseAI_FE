@@ -259,7 +259,7 @@ jobs:
               fi
 
               echo "♻️ Restarting app using PM2..."
-              pm2 restart ecosystem.config.js || pm2 start ecosystem.config.js
+              pm2 restart ecosystem.config.js --only nextjs-${ENV_BRANCH} || pm2 start ecosystem.config.js --only nextjs-${ENV_BRANCH}
             EOF
 
 workflows:
