@@ -96,8 +96,8 @@ jobs:
             echo "ENV_BRANCH resolved as ${ENV_BRANCH}"
 
             ENV_FILE=".env.${ENV_BRANCH}"
-            echo "Creating ${ENV_FILE} from ENV_BASE64"
-            echo "$ENV_BASE64" | base64 --decode > ~/${ENV_FILE}
+            echo "Creating ${ENV_FILE} from ENV_PROD_BASE64"
+            echo "$ENV_PROD_BASE64" | base64 --decode > ~/${ENV_FILE}
 
       - run:
           name: Copy environment files to remote server
