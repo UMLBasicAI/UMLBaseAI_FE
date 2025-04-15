@@ -187,7 +187,7 @@ jobs:
                 exit 1
                 ;;
             esac
-            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< EOF
            
 
               cd /home/adminplantuml/apps/umlbasicai-fe/${ENV_BRANCH}
@@ -221,8 +221,9 @@ jobs:
                 ;;
             esac
             echo "ENV_BRANCH=${ENV_BRANCH}"
-            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< EOF
               cd /home/adminplantuml/apps/umlbasicai-fe/${ENV_BRANCH}
+              echo "Running in $(pwd)"
               npm install --loglevel=error --no-fund --no-audit
               npm run build
             EOF
@@ -245,10 +246,10 @@ jobs:
                 exit 1
                 ;;
             esac
-            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< EOF
 
               cd /home/adminplantuml/apps/umlbasicai-fe/${ENV_BRANCH}
-
+              echo "Running in $(pwd)"
               echo "🔍 Checking if PM2 is installed..."
               if ! command -v pm2 &> /dev/null; then
                 echo "🔧 PM2 not found. Installing globally..."
