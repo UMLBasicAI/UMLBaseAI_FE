@@ -102,9 +102,27 @@ jobs:
       - run:
           name: Copy environment files to remote server
           command: |
+            case "${CIRCLE_BRANCH}" in
+              main)
+                ENV_BRANCH="production"
+                ;;
+              dev)
+                ENV_BRANCH="development"
+                ;;
+              test)
+                ENV_BRANCH="tst"
+                ;;
+              *)
+                echo "Unknown branch. Skipping deployment."
+                exit 1
+                ;;
+            esac
+
+            ENV_FILE=".env.${ENV_BRANCH}"
+
             echo "ENV_FILE=${ENV_FILE}"
             echo "ENV_BRANCH=${ENV_BRANCH}"
-            ls -l ~/${ENV_FILE}
+            ls -l ~/${ENV_FILE} || { echo "❌ ${ENV_FILE} not found!"; exit 1; }
 
             echo "Copying ${ENV_FILE} to remote server..."
             scp -o StrictHostKeyChecking=no ~/${ENV_FILE} adminplantuml@20.189.124.231:/home/adminplantuml/apps/umlbasicai-fe/${ENV_BRANCH}/${ENV_FILE}
@@ -114,6 +132,22 @@ jobs:
       - run:
           name: Sync project files to VPS using rsync
           command: |
+            case "${CIRCLE_BRANCH}" in
+              main)
+                ENV_BRANCH="production"
+                ;;
+              dev)
+                ENV_BRANCH="development"
+                ;;
+              test)
+                ENV_BRANCH="tst"
+                ;;
+              *)
+                echo "Unknown branch. Skipping deployment."
+                exit 1
+                ;;
+            esac
+
             APP_DIR="/home/adminplantuml/apps/umlbasicai-fe/${ENV_BRANCH}"
 
             echo "🔧 Checking and installing rsync on remote VPS..."
@@ -138,6 +172,22 @@ jobs:
           name: Check and Install Node.js/npm
           command: |
             ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
+              case "${CIRCLE_BRANCH}" in
+                main)
+                  ENV_BRANCH="production"
+                  ;;
+                dev)
+                  ENV_BRANCH="development"
+                  ;;
+                test)
+                  ENV_BRANCH="tst"
+                  ;;
+                *)
+                  echo "Unknown branch. Skipping deployment."
+                  exit 1
+                  ;;
+              esac
+
               cd /home/adminplantuml/apps/umlbasicai-fe/${ENV_BRANCH}
 
               echo "🔍 Checking Node.js and npm..."
@@ -154,6 +204,22 @@ jobs:
           name: Install deps & build on VPS
           command: |
             ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
+              case "${CIRCLE_BRANCH}" in
+                main)
+                  ENV_BRANCH="production"
+                  ;;
+                dev)
+                  ENV_BRANCH="development"
+                  ;;
+                test)
+                  ENV_BRANCH="tst"
+                  ;;
+                *)
+                  echo "Unknown branch. Skipping deployment."
+                  exit 1
+                  ;;
+              esac
+
               cd /home/adminplantuml/apps/umlbasicai-fe/${ENV_BRANCH}
               npm install --loglevel=error --no-fund --no-audit
               npm run build
@@ -163,6 +229,22 @@ jobs:
           name: Restart with PM2
           command: |
             ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
+              case "${CIRCLE_BRANCH}" in
+                main)
+                  ENV_BRANCH="production"
+                  ;;
+                dev)
+                  ENV_BRANCH="development"
+                  ;;
+                test)
+                  ENV_BRANCH="tst"
+                  ;;
+                *)
+                  echo "Unknown branch. Skipping deployment."
+                  exit 1
+                  ;;
+              esac
+
               cd /home/adminplantuml/apps/umlbasicai-fe/${ENV_BRANCH}
 
               echo "🔍 Checking if PM2 is installed..."
