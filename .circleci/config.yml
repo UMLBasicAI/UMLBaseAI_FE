@@ -84,7 +84,7 @@ jobs:
               dev)
                 ENV_BRANCH="development"
                 ;;
-              test)
+              tst)
                 ENV_BRANCH="tst"
                 ;;
               *)
@@ -109,7 +109,7 @@ jobs:
               dev)
                 ENV_BRANCH="development"
                 ;;
-              test)
+              tst)
                 ENV_BRANCH="tst"
                 ;;
               *)
@@ -148,7 +148,7 @@ jobs:
               dev)
                 ENV_BRANCH="development"
                 ;;
-              test)
+              tst)
                 ENV_BRANCH="tst"
                 ;;
               *)
@@ -186,7 +186,7 @@ jobs:
               dev)
                 ENV_BRANCH="development"
                 ;;
-              test)
+              tst)
                 ENV_BRANCH="tst"
                 ;;
               *)
@@ -219,7 +219,7 @@ jobs:
               dev)
                 ENV_BRANCH="development"
                 ;;
-              test)
+              tst)
                 ENV_BRANCH="tst"
                 ;;
               *)
@@ -245,7 +245,7 @@ jobs:
               dev)
                 ENV_BRANCH="development"
                 ;;
-              test)
+              tst)
                 ENV_BRANCH="tst"
                 ;;
               *)
