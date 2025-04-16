@@ -42,20 +42,33 @@ export default function ChatInterface({ messages, onSendMessage, isLoading }: Ch
       <div className="flex-1 p-4 overflow-y-auto">
         <div className="space-y-4">
           {messages.map((message, index) => (
-            <div key={index} className={`flex ${message.type === "request" ? "justify-end" : "justify-start"}`}>
+            <div
+              key={index}
+              className={`flex ${message.type === "request" ? "justify-end" : "justify-start"}`}
+            >
               <div
-                className={`max-w-[80%] px-4 py-2 rounded-lg ${
-                  message.type === "request"
+                className={`max-w-[80%] px-4 py-2 rounded-lg ${message.type === "request"
                     ? "bg-gray-800 text-white rounded-tr-none"
                     : "bg-gray-100 text-gray-800 rounded-tl-none"
-                }`}
+                  }`}
               >
-                <p className="whitespace-pre-wrap">{message.content}</p>
+                {message.content === "__loading__" ? (
+                  <div className="flex items-center gap-2">
+                    <span className="flex space-x-1">
+                      <span className="h-2 w-2 rounded-full bg-gray-400 animate-bounce [animation-delay:.1s]"></span>
+                      <span className="h-2 w-2 rounded-full bg-gray-400 animate-bounce [animation-delay:.2s]"></span>
+                      <span className="h-2 w-2 rounded-full bg-gray-400 animate-bounce [animation-delay:.3s]"></span>
+                    </span>
+                  </div>
+                ) : (
+                  <p className="whitespace-pre-wrap">{message.content}</p>
+                )}
               </div>
             </div>
           ))}
           <div ref={messagesEndRef} />
         </div>
+
       </div>
 
       <div className="p-4 border-t border-gray-200">

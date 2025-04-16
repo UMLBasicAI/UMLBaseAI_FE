@@ -19,34 +19,45 @@ export default function Home({ historyId }: { historyId: string }) {
     const [triggerPromptToAI, { isLoading }] = usePromptToAIMutation()
     const handleSendMessage = async (message: string) => {
         if (!message.trim()) return;
-
+    
         const sentAt = new Date().toISOString();
-
+    
         setMessages((prev) => [
             ...prev,
             { type: 'request', content: message, sent_at: sentAt },
+            { type: 'response', content: '__loading__', sent_at: 'loading' }, 
         ]);
-
+    
         try {
             const result = await triggerPromptToAI(
                 historyId ? { historyId, prompt: message } : { prompt: message }
             ).unwrap();
-
+    
             const responseText = result?.body?.responseText;
             const aiSentAt = new Date().toISOString();
+    
             if (result?.body?.plantUML) {
                 setPlantUmlCode(result.body.plantUML);
                 setRightSidebarOpen(true);
             }
+    
             setMessages((prev) => [
-                ...prev,
+                ...prev.filter((msg) => msg.sent_at !== 'loading'),
                 { type: 'response', content: responseText, sent_at: aiSentAt },
             ]);
         } catch (err) {
-            alert("AI Call Error");
+            setMessages((prev) => [
+                ...prev.filter((msg) => msg.sent_at !== 'loading'),
+                {
+                    type: 'response',
+                    content: 'Đã có lỗi xảy ra, không nhận được phản hồi',
+                    sent_at: new Date().toISOString(),
+                },
+            ]);
             console.error('AI call error:', err);
         }
     };
+    
 
     return (
         <main
