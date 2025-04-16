@@ -41,6 +41,7 @@ const PlantUMLViewer: React.FC<PlantUMLViewerProps> = ({ uml }) => {
           console.error("Invalid UML:", message)
         }
         setUmlURL(getImageUrl("svg"))
+        fitImageToContainer
       }
       validateUML()
     }, [uml])
