@@ -4,15 +4,21 @@ import { Metadata } from 'next'
 import { motion } from "framer-motion"
 import webLocalStorage from '@/utils/webLocalStorage'
 import { useRouter } from 'next/navigation'
+import webStorageClient from '@/utils/webStorageClient'
 
 export default function RootPage() {
     const router = useRouter()
-    const user = webLocalStorage.get('user')
-    if (user) {
-        router.push('/chat')
+    const userToken = webStorageClient.getToken();
+    if (userToken) {
+        router.push('/chat');
+    }
+    const handleStart = () => {
+      if (userToken) {
+        router.push("/chat") 
+      } router.push("/sign-in")
     }
     return (
-        <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+        <div className="relative flex min-h-full items-center justify-center overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 p-4">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden">
         {[...Array(5)].map((_, i) => (
@@ -140,6 +146,7 @@ export default function RootPage() {
                 boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
               }}
               whileTap={{ scale: 0.98 }}
+              onClick={() => handleStart()}
             >
               <span className="relative z-10">Get Started</span>
               <motion.div

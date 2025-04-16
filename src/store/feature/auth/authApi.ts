@@ -1,13 +1,13 @@
 import { baseApi } from '@/store/feature/base';
-
 import { authEndpoint } from "@/settings/endpoints";
+
 export const authApis = baseApi.injectEndpoints({
     endpoints: (build) => ({
-        exampleRequestLogin: build.mutation<any, { username: string, password: string, isRemember: boolean }>({
+        signIn: build.mutation<any, { username: string, password: string, isRemember: boolean }>({
             query: (params) => ({
                 url: authEndpoint.SIGNIN,
                 body: {
-                    username: params.username,
+                    email: params.username,
                     password: params.password,
                     isRemember: params.isRemember
                 },
@@ -16,7 +16,7 @@ export const authApis = baseApi.injectEndpoints({
             }),
             extraOptions: { skipAuth: true }
         }),
-        exampleRequestSignUp: build.mutation<any, { username: string, password: string, email: string }>({
+        signUp: build.mutation<any, { username: string, password: string, email: string }>({
             query: (params) => ({
                 url: authEndpoint.SIGNUP,
                 body: {
@@ -29,19 +29,19 @@ export const authApis = baseApi.injectEndpoints({
             }),
             extraOptions: { skipAuth: true }
         }),
-        exampleGet: build.query<any, void>({
-            query: () => ({
-                url: '/example',
+        getUserId: build.query<any,void>({
+            query: (params) => ({
+                url: authEndpoint.GET_USER_INFOR,
+                flashError: true,
                 method: 'GET',
             }),
-            extraOptions: { skipAuth: false }
-        })
+        }),
+        
     }),
 })
 
 export const {
-    useExampleRequestLoginMutation,
-    useExampleRequestSignUpMutation,
-    useExampleGetQuery,
-    useLazyExampleGetQuery,
+    useSignInMutation,
+    useSignUpMutation,
+    useGetUserIdQuery
 } = authApis;
