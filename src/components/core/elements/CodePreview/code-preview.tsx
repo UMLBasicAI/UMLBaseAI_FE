@@ -120,7 +120,7 @@ export default function CodePreviewComponent({ code, setCode }: CodePreviewProps
                 <div
                     className={`${viewMode !== 'code' ? 'block' : 'hidden'} p-4`}
                 >
-                    <div className="rounded-md border border-gray-200 p-4">
+                    <div className="rounded-md border border-gray-200 p-3">
                         <PlantUMLViewer uml={code} key={code} />
                     </div>
                 </div>
