@@ -47,7 +47,7 @@ jobs:
           root: .
           paths:
             - .next
-            - node_modules
+            # - node_modules
             - public
             - package.json
             - package-lock.json
@@ -65,6 +65,7 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - "SHA256:l773R58oKSwz7pggORkLHL2XxUko5EMWHOMuu2AvS/8"
+
       - run:
           name: Install rsync on CI environment
           command: |
@@ -74,55 +75,134 @@ jobs:
           at: ~/project
 
       - run:
-          name: Create .env.production from ENV_PROD_BASE64
+          name: Set environment and deploy
           command: |
-            echo "$ENV_PROD_BASE64" | base64 --decode > ~/project/.env.production
+            case "${CIRCLE_BRANCH}" in
+              main)
+                ENV_BRANCH="production"
+                ;;
+              dev)
+                ENV_BRANCH="development"
+                ;;
+              tst)
+                ENV_BRANCH="tst"
+                ;;
+              *)
+                echo "Unknown branch. Skipping deployment."
+                exit 1
+                ;;
+            esac
+
+            echo "ENV_BRANCH resolved as ${ENV_BRANCH}"
+
+            ENV_FILE=".env.${ENV_BRANCH}"
+            echo "Creating ${ENV_FILE} from ENV_PROD_BASE64"
+            echo "$ENV_PROD_BASE64" | base64 --decode > ~/${ENV_FILE}
 
       - run:
-          name: Ensure rsync is installed on VPS
+          name: Copy environment files to remote server
           command: |
-            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
-              if ! command -v rsync &> /dev/null; then
-                echo "Installing rsync..."
-                sudo apt-get update && sudo apt-get install -y rsync
-              else
-                echo "rsync is already installed."
-              fi
+            case "${CIRCLE_BRANCH}" in
+              main)
+                ENV_BRANCH="production"
+                ;;
+              dev)
+                ENV_BRANCH="development"
+                ;;
+              tst)
+                ENV_BRANCH="tst"
+                ;;
+              *)
+                echo "Unknown branch. Skipping deployment."
+                exit 1
+                ;;
+            esac
+
+            ENV_FILE=".env.${ENV_BRANCH}"
+
+            echo "ENV_FILE=${ENV_FILE}"
+            echo "ENV_BRANCH=${ENV_BRANCH}"
+            ls -l ~/${ENV_FILE} || { echo "❌ ${ENV_FILE} not found!"; exit 1; }
+
+            echo "Checking or creating remote directory for ${ENV_BRANCH}..."
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< EOF
+              BASE_DIR="/home/adminplantuml/apps/umlbasicai-fe"
+              TARGET_DIR="\$BASE_DIR/${ENV_BRANCH}"
+              mkdir -p "\$TARGET_DIR"
             EOF
 
+            echo "Copying ${ENV_FILE} to remote server..."
+            scp -o StrictHostKeyChecking=no ~/${ENV_FILE} adminplantuml@20.189.124.231:/home/adminplantuml/apps/umlbasicai-fe/${ENV_BRANCH}/${ENV_FILE}
+            echo "${ENV_FILE} has been copied successfully."
+
+            echo "Preparing .env file for rsync..."
+            cp ~/${ENV_FILE} ~/project/.env
+            
       - run:
           name: Sync project files to VPS using rsync
           command: |
-            APP_DIR="/home/adminplantuml/apps/umlbasicai-fe/production"
+            case "${CIRCLE_BRANCH}" in
+              main)
+                ENV_BRANCH="production"
+                ;;
+              dev)
+                ENV_BRANCH="development"
+                ;;
+              tst)
+                ENV_BRANCH="tst"
+                ;;
+              *)
+                echo "Unknown branch. Skipping deployment."
+                exit 1
+                ;;
+            esac
 
-              echo "🔧 Checking and installing rsync on remote VPS..."
-              ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 "
-                mkdir -p $APP_DIR
-                if ! command -v rsync &> /dev/null; then
-                  echo '🔧 rsync not found. Installing...'
-                  sudo apt update && sudo apt install -y rsync
-                else
-                  echo '✅ rsync already installed.'
-                fi
-              "
+            APP_DIR="/home/adminplantuml/apps/umlbasicai-fe/${ENV_BRANCH}"
 
-              echo "🔄 Syncing files to VPS using rsync..."
-              rsync -avz --delete \
-                -e "ssh -o StrictHostKeyChecking=no" \
-                ~/project/.env.production \
-                ~/project/ \
-                adminplantuml@20.189.124.231:$APP_DIR
-      
+            echo "🔧 Checking and installing rsync on remote VPS..."
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 "
+              mkdir -p $APP_DIR
+              if ! command -v rsync &> /dev/null; then
+                echo '🔧 rsync not found. Installing...'
+                sudo apt update && sudo apt install -y rsync
+              else
+                echo '✅ rsync already installed.'
+              fi
+            "
+
+            echo "🔄 Syncing files to VPS using rsync..."
+            rsync -avz --delete \
+              -e "ssh -o StrictHostKeyChecking=no" \
+              ~/project/ \
+              adminplantuml@20.189.124.231:$APP_DIR
+
       - run:
           name: Check and Install Node.js/npm
           command: |
-            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< 'EOF'
-              cd /home/adminplantuml/apps/umlbasicai-fe/production
+            case "${CIRCLE_BRANCH}" in
+              main)
+                ENV_BRANCH="production"
+                ;;
+              dev)
+                ENV_BRANCH="development"
+                ;;
+              tst)
+                ENV_BRANCH="tst"
+                ;;
+              *)
+                echo "Unknown branch. Skipping deployment."
+                exit 1
+                ;;
+            esac
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< EOF
+           
+
+              cd /home/adminplantuml/apps/umlbasicai-fe/${ENV_BRANCH}
 
               echo "🔍 Checking Node.js and npm..."
               if ! command -v npm &> /dev/null || ! command -v node &> /dev/null; then
                 echo "🔧 Installing Node.js..."
-                curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+                curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash - 
                 sudo apt-get install -y nodejs
               else
                 echo "✅ Node.js and npm already installed."
@@ -132,8 +212,25 @@ jobs:
       - run:
           name: Install deps & build on VPS
           command: |
-            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<<EOF
-              cd /home/adminplantuml/apps/umlbasicai-fe/production
+            case "${CIRCLE_BRANCH}" in
+              main)
+                ENV_BRANCH="production"
+                ;;
+              dev)
+                ENV_BRANCH="development"
+                ;;
+              tst)
+                ENV_BRANCH="tst"
+                ;;
+              *)
+                echo "Unknown branch. Skipping deployment."
+                exit 1
+                ;;
+            esac
+            echo "ENV_BRANCH=${ENV_BRANCH}"
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< EOF
+              cd /home/adminplantuml/apps/umlbasicai-fe/${ENV_BRANCH}
+              echo "Running in $(pwd)"
               npm install --loglevel=error --no-fund --no-audit
               npm run build
             EOF
@@ -141,9 +238,25 @@ jobs:
       - run:
           name: Restart with PM2
           command: |
-            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<<'EOF'
-              cd /home/adminplantuml/apps/umlbasicai-fe/production
+            case "${CIRCLE_BRANCH}" in
+              main)
+                ENV_BRANCH="production"
+                ;;
+              dev)
+                ENV_BRANCH="development"
+                ;;
+              tst)
+                ENV_BRANCH="tst"
+                ;;
+              *)
+                echo "Unknown branch. Skipping deployment."
+                exit 1
+                ;;
+            esac
+            ssh -o StrictHostKeyChecking=no adminplantuml@20.189.124.231 \<< EOF
 
+              cd /home/adminplantuml/apps/umlbasicai-fe/${ENV_BRANCH}
+              echo "Running in $(pwd)"
               echo "🔍 Checking if PM2 is installed..."
               if ! command -v pm2 &> /dev/null; then
                 echo "🔧 PM2 not found. Installing globally..."
@@ -153,7 +266,7 @@ jobs:
               fi
 
               echo "♻️ Restarting app using PM2..."
-              pm2 restart ecosystem.config.js || pm2 start ecosystem.config.js
+              pm2 restart ecosystem.config.js --only nextjs-${ENV_BRANCH} || pm2 start ecosystem.config.js --only nextjs-${ENV_BRANCH}
             EOF
 
 workflows:
@@ -165,5 +278,7 @@ workflows:
             - build
           filters:
             branches:
-              only: main
-
+              only:
+                - main
+                - dev
+                - tst

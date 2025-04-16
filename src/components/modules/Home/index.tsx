@@ -47,6 +47,7 @@ export default function Home({ historyId }: { historyId: string }) {
             console.error('AI call error:', err);
         }
     };
+
     return (
         <main
             ref={containerRef}

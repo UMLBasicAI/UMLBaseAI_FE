@@ -6,7 +6,7 @@ interface AuthLayoutProps {
     readonly children: React.ReactNode
 }
 
-function AuthLayout({ children }: AuthLayoutProps) {
+function AuthLayout({ children }: AuthLayoutProps) {    
     return <Layout className="!bg-transparent">{children}</Layout>
 }
 
