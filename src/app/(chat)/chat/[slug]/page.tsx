@@ -5,5 +5,5 @@ interface PageProps {
 }
 
 export default function ChatPage({ params }: PageProps) {
-    return <Home chatId={params.slug} />
+    return <Home historyId={params.slug} />
 }
