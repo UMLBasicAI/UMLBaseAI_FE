@@ -1,12 +1,10 @@
 "use client"
-
 import type React from "react"
-
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { useAuth } from "@/context/AuthContext"
 import { userData } from "@/data/authData"
-import { useExampleRequestSignUpMutation } from "@/store/feature/auth/authApi"
+import { useSignUpMutation } from "@/store/feature/auth/authApi"
 import { useRouter } from "next/navigation"
 import { LockIcon, MailIcon, EyeIcon, EyeOffIcon, UserIcon } from "lucide-react"
 import Link from "next/link"
@@ -14,7 +12,7 @@ import { message } from "antd"
 
 export default function SignUp() {
   const router = useRouter()
-  const [requestSignUp] = useExampleRequestSignUpMutation()
+  const [requestSignUp] = useSignUpMutation()
   const { login } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)

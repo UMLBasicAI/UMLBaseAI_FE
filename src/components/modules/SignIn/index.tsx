@@ -4,23 +4,26 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import { useAuth } from "@/context/AuthContext"
 import { userData } from "@/data/authData"
-import { useExampleRequestLoginMutation } from "@/store/feature/auth/authApi"
+import { useGetUserIdQuery, useSignInMutation } from "@/store/feature/auth/authApi"
 import { useRouter } from "next/navigation"
 import webStorageClient from "@/utils/webStorageClient"
 import { LockIcon, MailIcon, EyeIcon, EyeOffIcon } from "lucide-react"
 import Link from "next/link"
 import { message } from "antd"
+import { useDispatch } from "react-redux"
+import { setUserInfo } from "@/store/feature/auth/auth"
+import useGetSWR from "@/hooks/useGetSWR"
 
 export default function SignIn() {
   const router = useRouter()
-  const [requestLogin] = useExampleRequestLoginMutation()
-  const { login } = useAuth()
+  const [requestLogin] = useSignInMutation()
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [rememberMe, setRememberMe] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState({ email: "", password: "" })
+  const dispatch = useDispatch();
 
   const validateForm = () => {
     let valid = true
@@ -49,37 +52,20 @@ export default function SignIn() {
   const handleClickLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
   
-    // Kiểm tra dữ liệu đầu vào
     if (!validateForm()) return;
   
     setIsLoading(true);
     setErrors({ email: "", password: "" });
   
     try {
-      // Gửi yêu cầu đăng nhập và lấy dữ liệu trả về
-      const data = await requestLogin({
+      await requestLogin({
         username: email,
         password,
         isRemember: rememberMe,
       }).unwrap();
-      console.log("Login data:", data);
-      const { accessToken, refreshToken } = data.body;
-
-      console.log("Login response:", { accessToken, refreshToken });
-      
-  
-      // Lưu token vào local/session storage
-      webStorageClient.setToken(accessToken);
-      webStorageClient.setRefreshToken(refreshToken);
-  
-      // Thông báo thành công
       message.success("Login successful! Redirecting...");
-  
-      // Chuyển hướng sau một chút delay
-      setTimeout(() => {
-        login(userData); // (nếu `userData` là mock thì nên bỏ)
-        router.push("/chat");
-      }, 1000);
+      router.push("/chat");
+
     } catch (error) {
       console.error("Login failed:", error);
       setErrors(prev => ({ ...prev, password: "Invalid credentials" }));
@@ -88,8 +74,6 @@ export default function SignIn() {
     }
   };
   
-
-
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword)
