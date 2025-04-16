@@ -5,16 +5,18 @@ import type React from "react"
 import { useState, useRef, useEffect } from "react"
 
 interface Message {
-  role: "user" | "assistant"
+  type: "request" | "response"
   content: string
+  sent_at: string
 }
 
 interface ChatInterfaceProps {
   messages: Message[]
   onSendMessage: (message: string) => void
+  isLoading: boolean
 }
 
-export default function ChatInterface({ messages, onSendMessage }: ChatInterfaceProps) {
+export default function ChatInterface({ messages, onSendMessage, isLoading }: ChatInterfaceProps) {
   const [input, setInput] = useState("")
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -40,10 +42,10 @@ export default function ChatInterface({ messages, onSendMessage }: ChatInterface
       <div className="flex-1 p-4 overflow-y-auto">
         <div className="space-y-4">
           {messages.map((message, index) => (
-            <div key={index} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+            <div key={index} className={`flex ${message.type === "request" ? "justify-end" : "justify-start"}`}>
               <div
                 className={`max-w-[80%] px-4 py-2 rounded-lg ${
-                  message.role === "user"
+                  message.type === "request"
                     ? "bg-gray-800 text-white rounded-tr-none"
                     : "bg-gray-100 text-gray-800 rounded-tl-none"
                 }`}

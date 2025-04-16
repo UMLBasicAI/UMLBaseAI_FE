@@ -6,12 +6,12 @@ import CodeMirror from '@uiw/react-codemirror'
 
 interface CodePreviewProps {
     code: string
+    setCode: (code: string) => void
 }
 
-export default function CodePreviewComponent({ code }: CodePreviewProps) {
+export default function CodePreviewComponent({ code, setCode }: CodePreviewProps) {
     const [copied, setCopied] = useState(false)
     const [viewMode, setViewMode] = useState<'preview' | 'code'>('code')
-    const [editorCode, setEditorCode] = useState(code)
 
     const handleCopy = () => {
         navigator.clipboard.writeText(code)
@@ -68,8 +68,8 @@ export default function CodePreviewComponent({ code }: CodePreviewProps) {
                 >
                     <pre className="h-full bg-gray-900 p-4 text-sm text-gray-100">
                         <CodeMirror
-                            value={editorCode}
-                            onChange={(value) => setEditorCode(value)}
+                            value={code}
+                            onChange={(value) => setCode(value)}
                             theme="dark"
                         />
                     </pre>
@@ -121,7 +121,7 @@ export default function CodePreviewComponent({ code }: CodePreviewProps) {
                     className={`${viewMode !== 'code' ? 'block' : 'hidden'} p-4`}
                 >
                     <div className="rounded-md border border-gray-200 p-4">
-                        <PlantUMLViewer uml={editorCode} key={editorCode} />
+                        <PlantUMLViewer uml={code} key={code} />
                     </div>
                 </div>
             </div>

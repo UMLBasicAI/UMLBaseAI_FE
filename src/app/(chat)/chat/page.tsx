@@ -23,7 +23,7 @@ export default function UMLChatEntry() {
           className="flex-1 bg-transparent outline-none text-gray-800 placeholder-gray-500"
         />
 
-        <button onClick={() => router.push('/chat/1')} className="p-2 rounded-full hover:bg-gray-200 transition">
+        <button onClick={() => router.push('/chat/b69ef5cb-b1b2-4394-81d7-6b4e337b6137')} className="p-2 rounded-full hover:bg-gray-200 transition">
           <SendHorizontal className="text-gray-800" />
         </button>
       </motion.div>
