@@ -1,63 +1,27 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
 import ChatInterface from './chat-interface'
-import { useParams } from 'next/navigation'
 
-export default function MessageBox({ chatId }: { chatId: string }) {
-    //Authentication
+export default function MessageBox({
+    historyId,
+    messages,
+    onSendMessage,
+    isLoading,
+    handleLoadMessage,
+    isEndOfList
+}: {
+    historyId: string
+    messages: Array<{ type: 'request' | 'response'; content: string; sent_at: string }>
+    onSendMessage: (message: string) => void
+    handleLoadMessage: () => void
+    isLoading: boolean,
+    isEndOfList: boolean
+}) {
     const [leftSidebarOpen, setLeftSidebarOpen] = useState(true)
-    // Default widths for the panels
-    const params = useParams()
     const [isResizingLeft, setIsResizingLeft] = useState(false)
-
-    const [messages, setMessages] = useState<
-        Array<{ role: 'user' | 'assistant'; content: string }>
-    >([])
-
-    const messageData: any = {
-        '1': [
-            {
-                role: 'assistant',
-                content: 'Xin chào! Tôi có thể giúp gì cho bạn?.',
-            },
-        ],
-        '2': [{ role: 'assistant', content: 'Chào! Bạn đang ở chat 2.' }],
-        '3': [{ role: 'assistant', content: 'Chào! Bạn đang ở chat 333.' }],
-    }
-
-    useEffect(() => {
-        if (chatId && messageData[chatId]) {
-            setMessages(messageData[chatId])
-        } else {
-            setMessages([
-                {
-                    role: 'assistant',
-                    content: 'Xin chào! Tôi có thể giúp gì cho bạn?',
-                },
-            ])
-        }
-    }, [chatId])
     const startResizingLeft = (e: React.MouseEvent) => {
         e.preventDefault()
         setIsResizingLeft(true)
-    }
-
-    const handleSendMessage = (message: string) => {
-        if (!message.trim()) return
-
-        // Add user message
-        setMessages((prev) => [...prev, { role: 'user', content: message }])
-
-        // Simulate AI response
-        setTimeout(() => {
-            setMessages((prev) => [
-                ...prev,
-                {
-                    role: 'assistant',
-                    content: `Đây là phản hồi cho tin nhắn: "${message}"`,
-                },
-            ])
-        }, 1000)
     }
     return (
         <>
@@ -73,11 +37,13 @@ export default function MessageBox({ chatId }: { chatId: string }) {
                 </div>
             )}
 
-            {/* Main Chat Interface */}
             <div className="flex flex-1 flex-col">
                 <ChatInterface
+                    isEndOfList={isEndOfList}
+                    handleLoadMessage={handleLoadMessage}
                     messages={messages}
-                    onSendMessage={handleSendMessage}
+                    onSendMessage={onSendMessage}
+                    isLoading={isLoading}
                 />
             </div>
         </>
