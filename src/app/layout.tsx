@@ -1,9 +1,9 @@
-import type { Metadata } from 'next'
-import './globals.css'
-import { Montserrat } from 'next/font/google'
-import AppProvider from './provider'
-import { cn } from '@/libs/utils'
 import { AuthProvider } from '@/context/AuthContext'
+import { cn } from '@/libs/utils'
+import type { Metadata } from 'next'
+import { Montserrat } from 'next/font/google'
+import './globals.css'
+import AppProvider from './provider'
 
 export const metadata: Metadata = {
     title: 'UML Basic AI',

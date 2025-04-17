@@ -1,8 +1,10 @@
 import { userData } from '@/data/authData'
 import { createSlice } from '@reduxjs/toolkit'
+import { authApis } from './authApi'
+import webStorageClient from '@/utils/webStorageClient'
 
 export interface IUserInfo {
-    _id: string
+    id: string
     displayName: string
     email: string
     avatarUrl: string
@@ -20,9 +22,19 @@ const initialState: IAuth = {
 const slice = createSlice({
     name: 'auth',
     initialState,
-    reducers: {},
+    reducers: {
+        setUserInfo: (state, action) => {
+            state.user = action.payload
+        }
+    },
+    extraReducers: (builder) => {
+        builder.addMatcher(authApis.endpoints.signIn.matchFulfilled, (state, action) => {
+            webStorageClient.setToken(action.payload.body.accessToken, {maxAge: 60*60*24*30});    
+            webStorageClient.setRefreshToken(action.payload.body.refreshToken, {maxAge: 60*60*24*30});
+        })
+    },
 })
 
-export const {} = slice.actions
+export const {setUserInfo} = slice.actions
 
 export default slice.reducer
