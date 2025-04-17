@@ -37,7 +37,7 @@ jobs:
               -Dsonar.issue.ignore.multicriteria.e1.ruleKey=typescript:S2245 \
               -Dsonar.issue.ignore.multicriteria.e1.resourceKey=**/*.tsx \
               -Dsonar.issue.ignore.multicriteria.e2.ruleKey=typescript:S2068 \
-              -Dsonar.issue.ignore.multicriteria.e2.resourceKey=**/*.js
+              -Dsonar.issue.ignore.multicriteria.e2.resourceKey=**/*.js \
               -Dsonar.cpd.exclusions=**/*.ts,**/*.tsx,**/*.js
 
       - run:
