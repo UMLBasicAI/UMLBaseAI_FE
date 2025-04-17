@@ -12,7 +12,7 @@ type MessagesType = Array<{ type: 'request' | 'response'; content: string; sent_
 
 export default function Home({ historyId }: { historyId: string }) {
     const containerRef = useRef<HTMLDivElement>(null)
-    const [rightSidebarOpen, setRightSidebarOpen] = useState(false)
+    const [rightSidebarOpen, setRightSidebarOpen] = useState(true)
 
     const [plantUmlCode, setPlantUmlCode] = useState('')
     const [messages, setMessages] = useState<MessagesType>([])
@@ -35,6 +35,7 @@ export default function Home({ historyId }: { historyId: string }) {
                 if (!result?.body.isHasNextPage === true) setIsEndOfList(true);
                 setPage((page) => page + 1);
                 setMessages((prev) => [...messages, ...prev])
+                setPlantUmlCode(result?.body?.lastPlantUmlCode);
             } catch (err) {
                 console.error('Error loading messages:', err)
             }
@@ -85,12 +86,11 @@ export default function Home({ historyId }: { historyId: string }) {
     
 
     return (
-        <main
+        <div
             ref={containerRef}
-            className="flex h-screen overflow-hidden bg-gray-50"
+            className="flex overflow-hidden h-full bg-gray-50"
         >
-            <Slider />
-            <>
+            <div className='flex h-full w-full justify-between'>
                 <MessageBox
                     isEndOfList={isEndOfList}
                     handleLoadMessage={handleLoadMessage}
@@ -105,7 +105,7 @@ export default function Home({ historyId }: { historyId: string }) {
                     rightSidebarOpen={rightSidebarOpen}
                     setRightSidebarOpen={setRightSidebarOpen}
                 />
-            </>
-        </main>
+            </div>
+        </div>
     )
 }

@@ -4,6 +4,7 @@ import { Montserrat } from 'next/font/google'
 import AppProvider from './provider'
 import { cn } from '@/libs/utils'
 import { AuthProvider } from '@/context/AuthContext'
+import Header from '@/components/core/common/Header'
 
 export const metadata: Metadata = {
     title: 'UML Basic AI',
