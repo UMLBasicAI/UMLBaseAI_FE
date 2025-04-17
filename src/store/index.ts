@@ -3,6 +3,7 @@ import { setupListeners } from '@reduxjs/toolkit/query'
 import auth from './feature/auth/auth'
 import { authApis } from './feature/auth/authApi'
 import { baseApi } from './feature/base'
+import start from './feature/start/start'
 
 export const createStore = (
     option?: ConfigureStoreOptions['preloadedState'] | undefined,
@@ -10,6 +11,7 @@ export const createStore = (
     configureStore({
         reducer: {
             auth: auth,
+            start: start,
             [baseApi.reducerPath]: baseApi.reducer,
         },
         middleware: (getDefaultMiddleware) =>

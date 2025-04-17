@@ -2,21 +2,28 @@
 
 import { Layout } from 'antd'
 import { Content } from 'antd/es/layout/layout'
-import './style.css'
 import Header from '../../common/Header'
+import Slider from '../../elements/SliderChat'
+import { usePathname } from 'next/navigation'
 
 interface MainLayoutProps {
     readonly children: React.ReactNode
 }
 
 function MainLayout({ children }: MainLayoutProps) {
+    const pathname = usePathname();
     return (
-        <Layout className="background flex h-screen flex-col">
+        <Layout className="!h-screen justify-between flex flex-col">
             <Header />
+            <div className='flex flex-row h-full'>
+                {
+                    !(pathname == "/") && <Slider />
+                }
 
-            <Content className="!md:mx-w-[1440px] mx-auto mt-0 flex h-screen !min-w-full flex-col">
-                {children}
-            </Content>
+                <Content className="mx-auto mt-0 flex flex-col">
+                    {children}
+                </Content>
+            </div>
         </Layout>
     )
 }

@@ -10,7 +10,7 @@ const CALL_ACCESS_TOKEN = "_callAccessToken";
 const REDIRECT_URL = "_redirectUrl";
 const BOOKED_ID = "_bookedId"
 
-const API_SERVER = process.env.NEXT_PUBLIC_API_SERVER;
+const API_SERVER = process.env.NEXT_PUBLIC_API_URL;
 const SERVICE_API_SERVIER = process.env.NEXT_PUBLIC_SERVICE_API_SERVER;
 
 const NOTIFICATION_TYPES = {

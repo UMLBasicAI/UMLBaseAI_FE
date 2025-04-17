@@ -1,7 +1,8 @@
 'use client'
 import type { IUserInfo } from '@/store/feature/auth/auth'
+import webStorageClient from '@/utils/webStorageClient'
 import { useRouter } from 'next/navigation'
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useEffect, useState } from 'react'
 
 interface AuthContextType {
     user: IUserInfo | null
@@ -18,9 +19,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const [user, setUser] = useState<IUserInfo | null>(null)
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('user')
-        if (storedUser) {
-            setUser(JSON.parse(storedUser))
+        const userToken = webStorageClient.getToken()
+        if (!userToken) {
+            router.push('/')
         }
     }, [])
 
@@ -31,7 +32,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const logout = () => {
         setUser(null)
-        localStorage.removeItem('user')
+        webStorageClient.removeAll();
         router.push('/')
     }
 

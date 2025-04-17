@@ -30,6 +30,17 @@ body {
   max-width: 100%;
 }
 
+::selection {
+  background: #1f2937; 
+  color: white;       
+}
+
+::-moz-selection {
+  background: #1f2937;
+  color: white;
+}
+
+
 ::-webkit-scrollbar {
   width: 10px;
   padding-inline: 1px;

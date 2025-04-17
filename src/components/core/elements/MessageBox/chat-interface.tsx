@@ -3,57 +3,90 @@
 import type React from "react"
 
 import { useState, useRef, useEffect } from "react"
+import LoadWrapper from "../../common/LoadingWrapper"
 
 interface Message {
-  role: "user" | "assistant"
+  type: "request" | "response"
   content: string
+  sent_at: string
 }
 
 interface ChatInterfaceProps {
   messages: Message[]
   onSendMessage: (message: string) => void
+  isLoading: boolean
+  handleLoadMessage: () => void
+  isEndOfList: boolean
 }
 
-export default function ChatInterface({ messages, onSendMessage }: ChatInterfaceProps) {
+export default function ChatInterface({ messages, onSendMessage, isLoading, handleLoadMessage, isEndOfList }: ChatInterfaceProps) {
   const [input, setInput] = useState("")
   const messagesEndRef = useRef<HTMLDivElement>(null)
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [isSending, setIsSending] = useState(false)
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (input.trim()) {
-      onSendMessage(input)
+      setIsSending(true)
+      await onSendMessage(input)
+      setIsSending(false)
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
       setInput("")
     }
   }
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages])
+    if (!isSending) messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [isSending])
 
+  useEffect(() => {
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    }, 2000)
+  }, [])
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex w-full flex-col flex-1">
       <div className="p-4 text-center border-b border-gray-200">
-        <h1 className="text-xl font-bold text-gray-800">AI Assistant</h1>
+        <h1 className="text-xl font-bold text-gray-800">UML AI Assistant</h1>
       </div>
 
-      <div className="flex-1 p-4 overflow-y-auto">
+      <div id="message-container" className="flex-col max-h-[calc(100vh-190px)] justify-end h-full overflow-y-auto pt-2">
         <div className="space-y-4">
+          {!isEndOfList && <LoadWrapper
+            onLoad={handleLoadMessage}
+            scrollContainerRef={containerRef}
+          >
+            <div></div>
+          </LoadWrapper>}
           {messages.map((message, index) => (
-            <div key={index} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+            <div
+              key={index}
+              className={`flex message ${message.type === "request" ? "justify-end pr-4" : "justify-start pl-4"} `}
+            >
               <div
-                className={`max-w-[80%] px-4 py-2 rounded-lg ${
-                  message.role === "user"
-                    ? "bg-gray-800 text-white rounded-tr-none"
-                    : "bg-gray-100 text-gray-800 rounded-tl-none"
-                }`}
+                className={`max-w-[80%] px-4 py-2 rounded-lg ${message.type === "request"
+                  ? "bg-gray-800 text-white rounded-tr-none"
+                  : "bg-gray-100 text-gray-800 rounded-tl-none"
+                  }`}
               >
-                <p className="whitespace-pre-wrap">{message.content}</p>
+                {message.content === "__loading__" ? (
+                  <div className="flex items-center gap-2">
+                    <span className="flex space-x-1">
+                      <span className="h-2 w-2 rounded-full bg-gray-400 animate-bounce [animation-delay:.1s]"></span>
+                      <span className="h-2 w-2 rounded-full bg-gray-400 animate-bounce [animation-delay:.2s]"></span>
+                      <span className="h-2 w-2 rounded-full bg-gray-400 animate-bounce [animation-delay:.3s]"></span>
+                    </span>
+                  </div>
+                ) : (
+                  <p className="whitespace-pre-wrap">{message.content}</p>
+                )}
               </div>
             </div>
           ))}
           <div ref={messagesEndRef} />
         </div>
+
       </div>
 
       <div className="p-4 border-t border-gray-200">

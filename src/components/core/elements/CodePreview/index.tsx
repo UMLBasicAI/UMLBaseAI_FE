@@ -4,34 +4,22 @@ import type React from "react"
 import CodePreviewComponent from "./code-preview"
 
 
-export default function CodePreview() {
-  // Default width for the right sidebar
+export default function CodePreview({ plantUMLCode, setPlantUMLCode, rightSidebarOpen, setRightSidebarOpen}: 
+  { 
+    plantUMLCode: string
+    setPlantUMLCode: (code: string) => void
+    rightSidebarOpen: boolean
+    setRightSidebarOpen: (isOpen: boolean) => void
+   }) {
+  
   const defaultRightWidth = 400
   const minRightWidth = 200
   const maxRightWidth = 800
-
-  const [rightSidebarOpen, setRightSidebarOpen] = useState(true)
   const [isResizingRight, setIsResizingRight] = useState(false)
   const [rightWidth, setRightWidth] = useState(defaultRightWidth)
   const rightSidebarRef = useRef<HTMLDivElement>(null)
   const initialRightWidthRef = useRef(defaultRightWidth)
   const initialClientXRef = useRef(0)
-
-  const [currentCode, setCurrentCode] = useState(`@startuml
-  
-      class Car {
-          +startEngine()
-          +stopEngine()
-      }
-  
-      class ElectricCar {
-          +chargeBattery()
-      }
-  
-      Car <|-- ElectricCar
-  
-      @enduml
-    `)
 
   // Start resizing the right sidebar
   const startResizingRight = (e: React.MouseEvent) => {
@@ -41,7 +29,6 @@ export default function CodePreview() {
     initialClientXRef.current = e.clientX
     document.body.style.cursor = "col-resize"
   }
-
   // Handle resizing logic
   useEffect(() => {
     const handleResize = (e: MouseEvent) => {
@@ -116,7 +103,7 @@ export default function CodePreview() {
         className="relative overflow-hidden border-l border-gray-200 bg-white transition-all duration-300 ease-in-out"
       >
         <div className="h-full overflow-auto">
-          <CodePreviewComponent code={currentCode} />
+          <CodePreviewComponent code={plantUMLCode} setCode={setPlantUMLCode} />
         </div>
       </div>
 

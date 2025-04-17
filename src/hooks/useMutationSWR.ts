@@ -1,8 +1,8 @@
-import useSWRMutation, {
-    SWRMutationResponse,
-    SWRMutationConfiguration,
-} from 'swr/mutation'
 import { fetcher } from '@/utils/fetcher'
+import useSWRMutation, {
+    SWRMutationConfiguration,
+    SWRMutationResponse,
+} from 'swr/mutation'
 
 export default function useMutationSWR<T = any, V = any>(
     endpoint: string,
