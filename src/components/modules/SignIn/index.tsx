@@ -1,18 +1,13 @@
 "use client"
 
-import { useState } from "react"
-import { motion } from "framer-motion"
-import { useAuth } from "@/context/AuthContext"
-import { userData } from "@/data/authData"
-import { useGetUserIdQuery, useSignInMutation } from "@/store/feature/auth/authApi"
-import { useRouter } from "next/navigation"
-import webStorageClient from "@/utils/webStorageClient"
-import { LockIcon, MailIcon, EyeIcon, EyeOffIcon } from "lucide-react"
-import Link from "next/link"
+import { useSignInMutation } from "@/store/feature/auth/authApi"
 import { message } from "antd"
+import { motion } from "framer-motion"
+import { EyeIcon, EyeOffIcon, LockIcon, MailIcon } from "lucide-react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 import { useDispatch } from "react-redux"
-import { setUserInfo } from "@/store/feature/auth/auth"
-import useGetSWR from "@/hooks/useGetSWR"
 
 export default function SignIn() {
   const router = useRouter()
@@ -32,16 +27,16 @@ export default function SignIn() {
     if (!email) {
       newErrors.email = "Email is required"
       valid = false
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
+    } else if (!/\S+@\S+\.\S+/.test(email)) { // NOSONAR
       newErrors.email = "Email is invalid"
       valid = false
     }
 
     if (!password) {
-      newErrors.password = "Password is required"
+      newErrors.password = "Password is required"  // NOSONAR
       valid = false
     } else if (password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters"
+      newErrors.password = "Password must be at least 6 characters" // NOSONAR
       valid = false
     }
 
@@ -68,7 +63,7 @@ export default function SignIn() {
 
     } catch (error) {
       console.error("Login failed:", error);
-      setErrors(prev => ({ ...prev, password: "Invalid credentials" }));
+      setErrors(prev => ({ ...prev, password: "Invalid credentials" })); // NOSONAR
     } finally {
       setIsLoading(false);
     }

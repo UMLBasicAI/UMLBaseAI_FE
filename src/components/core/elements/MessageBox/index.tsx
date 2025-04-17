@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import ChatInterface from './chat-interface'
 
 export default function MessageBox({

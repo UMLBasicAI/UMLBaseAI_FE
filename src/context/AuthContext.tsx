@@ -2,7 +2,7 @@
 import type { IUserInfo } from '@/store/feature/auth/auth'
 import webStorageClient from '@/utils/webStorageClient'
 import { useRouter } from 'next/navigation'
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useEffect, useState } from 'react'
 
 interface AuthContextType {
     user: IUserInfo | null
