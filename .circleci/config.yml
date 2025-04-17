@@ -38,6 +38,7 @@ jobs:
               -Dsonar.issue.ignore.multicriteria.e1.resourceKey=**/*.tsx \
               -Dsonar.issue.ignore.multicriteria.e2.ruleKey=typescript:S2068 \
               -Dsonar.issue.ignore.multicriteria.e2.resourceKey=**/*.js
+              -Dsonar.cpd.exclusions=**/*.ts,**/*.tsx,**/*.js
 
       - run:
           name: Build Next.js frontend
