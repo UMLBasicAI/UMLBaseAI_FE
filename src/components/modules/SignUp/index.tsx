@@ -58,8 +58,8 @@ export default function SignUp() {
     } else if (password !== confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match"
       valid = false
-    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/.test(password)) {
-      newErrors.password = "Password must include uppercase, lowercase, number, and special character"
+    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/.test(password)) { // NOSONAR
+      newErrors.password = "Password must include uppercase, lowercase, number, and special character" // NOSONAR
       valid = false
     }
 
