@@ -5,6 +5,7 @@ import ChatHistory from "./history-chat"
 import { useGetHistoriesQuery, useLazyGetHistoriesQuery } from "@/store/feature/history/historyApi"
 import { History } from "@/store/feature/history/history"
 import webStorageClient from "@/utils/webStorageClient"
+import { usePathname } from "next/navigation"
 
 export default function Slider() {
   // Default width for the left sidebar
@@ -22,18 +23,24 @@ export default function Slider() {
   const [chatHistory, setChatHistory] = useState<History[]>([]);
   const [getHistories, {data, isFetching}] = useLazyGetHistoriesQuery();
   const token = webStorageClient.getToken();
+  const pathname = usePathname();
+
   useEffect(() => {
     const handleLoadHistories = async () => {
-      const response = await getHistories({page, size: 20}).unwrap();
-      console.log(response)
-      setChatHistory([...chatHistory, ...response.body.histories]);
+      const response = await getHistories({ page, size: 10 }).unwrap();
+      
+      if (page === 1) {
+        setChatHistory(response.body.histories);
+      } else {
+        setChatHistory(prev => [...prev, ...response.body.histories]);
+      }
     }
-    if(token) {
-      handleLoadHistories()
+  
+    if (token) {
+      handleLoadHistories();
     }
-  }, [page])
-  console.log(chatHistory);
-
+  }, [page, pathname]);
+  
   const startResizingLeft = (e: React.MouseEvent) => {
     e.preventDefault()
     setIsResizingLeft(true)
@@ -89,6 +96,14 @@ export default function Slider() {
     }
   }
 
+  const scrollToBottom = () => {
+    const lastMessage = document.getElementById("last-history")
+    if (lastMessage) {
+      lastMessage.scrollIntoView({ behavior: "smooth" })
+    }
+  }
+  
+
   return (
     <div className="flex h-full" style={{zIndex: 100}}>
       {/* Left Sidebar */}
@@ -105,6 +120,14 @@ export default function Slider() {
           <ChatHistory chatHistory={chatHistory!} />
         </div>
         {/* Right resize handle for left sidebar */}
+        <div className="absolute bottom-0 bg-gray-200 cursor-pointer w-full p-2" 
+          onClick={() => {
+            setPage((prev) => prev + 1)
+            setTimeout(scrollToBottom, 200)
+          }}
+        >
+          <p className="text-center font-semibold">Load more history</p>
+        </div>
         <div
           onMouseDown={startResizingLeft}
           className={`group absolute right-0 top-0 z-10 h-full w-1.5 cursor-col-resize ${

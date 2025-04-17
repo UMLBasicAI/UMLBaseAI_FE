@@ -81,12 +81,13 @@ export default function ChatHistory({ chatHistory }: {chatHistory: History[]}) {
             <div className="flex-1 overflow-y-auto">
                 {filteredHistory?.length > 0 ? (
                     <ul className="divide-y divide-gray-200">
-                        {filteredHistory?.map((chat) => (
+                        {filteredHistory?.map((chat, index) => (
                             <li key={chat.id} className={
                                 cn("hover:bg-gray-50", 
                                     `${pathname.includes(chat.id) && 'bg-gray-100'}`
                                 )
-                            }>
+                                
+                            }  id={index === chatHistory.length - 1 ? "last-history" : undefined}>
                                 <button
                                     onClick={() =>
                                         router.push(`/chat/${chat.id}`)

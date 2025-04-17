@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useRef, useEffect } from "react"
-import LoadWrapper from "../../common/LoadWrapper"
+import LoadWrapper from "../../common/LoadingWrapper"
 
 interface Message {
   type: "request" | "response"
