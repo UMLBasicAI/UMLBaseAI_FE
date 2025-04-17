@@ -168,17 +168,16 @@ export default function CodePreviewComponent({ code, setCode }: CodePreviewProps
                 <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
               </svg>
             </button>
-
             {isOpen && (
               <div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                {themes.map((t) => (
-                  <div
-                    key={t}
-                    className={`px-3 py-1 text-sm cursor-pointer hover:bg-gray-200 ${theme === t ? "bg-gray-100" : ""}`}
+                {themes.map((t, index) => (
+                  <button
+                    key={index}
+                    className={`px-3 w-full py-1 text-sm cursor-pointer hover:bg-gray-200 ${theme === t ? "bg-gray-100" : ""}`}
                     onClick={() => handleThemeSelect(t)}
                   >
                     {t}
-                  </div>
+                  </button>
                 ))}
               </div>
             )}

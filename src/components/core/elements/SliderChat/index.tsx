@@ -29,7 +29,7 @@ export default function Slider() {
 
     useEffect(() => {
         const handleLoadHistories = async () => {
-            const response = await getHistories({ page, size: 10 }).unwrap()
+            const response = await getHistories({ page, size: 2 }).unwrap()
 
             if (page === 1) {
                 setChatHistory(response.body.histories)
@@ -137,7 +137,7 @@ export default function Slider() {
                 </div>
                 {/* Right resize handle for left sidebar */}
                 {chatHistory.length > 0 && data?.body.isHasNextPage && (
-                    <div
+                    <button
                         className="absolute bottom-0 w-full cursor-pointer bg-gray-200 p-2"
                         onClick={() => {
                             setPage((prev) => prev + 1)
@@ -147,7 +147,7 @@ export default function Slider() {
                         <p className="text-center font-semibold">
                             Load more history
                         </p>
-                    </div>
+                    </button>
                 )}
                 <div
                     onMouseDown={startResizingLeft}
