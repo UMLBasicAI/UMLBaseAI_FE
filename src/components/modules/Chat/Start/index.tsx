@@ -194,7 +194,7 @@ export default function UMLChatEntry() {
                         className="mt-8 grid max-w-3xl grid-cols-1 gap-4 md:grid-cols-2"
                     >
                         {examplePrompts.map((prompt, index) => (
-                            <div
+                            <button
                                 key={index}
                                 onClick={() =>
                                     handleSubmitExample({
@@ -208,7 +208,7 @@ export default function UMLChatEntry() {
                                     text={prompt.text}
                                     delay={prompt.delay}
                                 />
-                            </div>
+                            </button>
                         ))}
                     </motion.div>
                 </motion.div>
