@@ -1,12 +1,12 @@
+import { AppJwtPayload } from '@/hooks/useJwtDecode'
 import constants from '@/settings/constants'
 import webStorageClient from '@/utils/webStorageClient'
+import { FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query'
 import {
+    BaseQueryFn,
     createApi,
     fetchBaseQuery,
-    BaseQueryFn,
 } from '@reduxjs/toolkit/query/react'
-import { FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query'
-import { AppJwtPayload, useJwtDecode } from '@/hooks/useJwtDecode'
 import { message } from 'antd'
 import { jwtDecode } from 'jwt-decode'
 

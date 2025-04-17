@@ -1,14 +1,13 @@
 'use client'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import type React from 'react'
-import ChatHistory from './history-chat'
-import {
-    useGetHistoriesQuery,
-    useLazyGetHistoriesQuery,
-} from '@/store/feature/history/historyApi'
 import { History } from '@/store/feature/history/history'
+import {
+  useLazyGetHistoriesQuery
+} from '@/store/feature/history/historyApi'
 import webStorageClient from '@/utils/webStorageClient'
 import { usePathname } from 'next/navigation'
+import type React from 'react'
+import { useEffect, useRef, useState } from 'react'
+import ChatHistory from './history-chat'
 
 export default function Slider() {
     // Default width for the left sidebar

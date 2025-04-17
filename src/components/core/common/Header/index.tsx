@@ -1,17 +1,11 @@
 'use client'
 import { useAuth } from '@/context/AuthContext'
-import useGetSWR from '@/hooks/useGetSWR'
 import constants from '@/settings/constants'
 import { authEndpoint } from '@/settings/endpoints'
-import { RootState } from '@/store'
-import { setUserInfo } from '@/store/feature/auth/auth'
-import { useGetUserIdQuery } from '@/store/feature/auth/authApi'
 import webStorageClient from '@/utils/webStorageClient'
-import useToken from 'antd/es/theme/useToken'
+import axios from 'axios'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import axios from 'axios'
 
 export default function Header() {
     const router = useRouter()
