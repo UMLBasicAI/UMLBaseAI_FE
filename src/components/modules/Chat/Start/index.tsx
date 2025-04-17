@@ -71,6 +71,8 @@ export default function UMLChatEntry() {
             router.push('/chat/' + data?.body?.historyId)
         }
     }
+
+    
     const handleSubmitExample = async ({ message }: { message: string }) => {
         const data = await promptToAi({ prompt: message }).unwrap()
         dispatch(setStart(true))
@@ -166,6 +168,12 @@ export default function UMLChatEntry() {
                             placeholder="Ask anything about UML diagrams or code generation..."
                             className="flex-1 bg-transparent text-gray-800 placeholder-gray-500 outline-none"
                             onChange={(e) => setMessageContent(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault(); 
+                                  handleSubmit();
+                                }
+                              }}
                         />
 
                         <button
