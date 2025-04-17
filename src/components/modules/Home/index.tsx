@@ -1,11 +1,9 @@
 'use client'
 
-import Header from '@/components/core/common/Header'
 import CodePreview from '@/components/core/elements/CodePreview'
 import MessageBox from '@/components/core/elements/MessageBox'
-import Slider from '@/components/core/elements/SliderChat'
 import { useLazyGetHistoryByIdQuery, usePromptToAIMutation } from '@/store/feature/ai/aiAPI'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 
 
 type MessagesType = Array<{ type: 'request' | 'response'; content: string; sent_at: string }>;

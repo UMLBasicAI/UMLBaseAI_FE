@@ -1,14 +1,13 @@
 "use client"
+import { useAuth } from "@/context/AuthContext"
+import { useSignUpMutation } from "@/store/feature/auth/authApi"
+import { message } from "antd"
+import { motion } from "framer-motion"
+import { EyeIcon, EyeOffIcon, LockIcon, MailIcon, UserIcon } from "lucide-react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
 import type React from "react"
 import { useState } from "react"
-import { motion } from "framer-motion"
-import { useAuth } from "@/context/AuthContext"
-import { userData } from "@/data/authData"
-import { useSignUpMutation } from "@/store/feature/auth/authApi"
-import { useRouter } from "next/navigation"
-import { LockIcon, MailIcon, EyeIcon, EyeOffIcon, UserIcon } from "lucide-react"
-import Link from "next/link"
-import { message } from "antd"
 
 export default function SignUp() {
   const router = useRouter()
@@ -40,16 +39,16 @@ export default function SignUp() {
     if (!email) {
       newErrors.email = "Email is required"
       valid = false
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
+    } else if (!/\S+@\S+\.\S+/.test(email)) {  // NOSONAR
       newErrors.email = "Email is invalid"
       valid = false
     }
 
     if (!password) {
-      newErrors.password = "Password is required"
+      newErrors.password = "Password is required" // NOSONAR
       valid = false
     } else if (password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters"
+      newErrors.password = "Password must be at least 6 characters" // NOSONAR
       valid = false
     }
 

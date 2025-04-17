@@ -1,6 +1,6 @@
   // hooks/useCustomSWR.ts
-  import useSWR, { SWRResponse, SWRConfiguration, KeyedMutator } from "swr";
   import { fetcher } from "@/utils/fetcher";
+import useSWR, { SWRConfiguration, SWRResponse } from "swr";
 
   interface UseCustomSWROptions extends RequestInit {
     endpoint?: string;

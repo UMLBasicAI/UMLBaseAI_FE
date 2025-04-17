@@ -10,13 +10,11 @@ import { Input, message, Modal, Popover } from 'antd'
 import dayjs from 'dayjs'
 import {
     AlertTriangle,
-    DeleteIcon,
     MoreHorizontal,
     Pencil,
     Share2,
     Trash2,
-    Trash2Icon,
-    X,
+    X
 } from 'lucide-react'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
