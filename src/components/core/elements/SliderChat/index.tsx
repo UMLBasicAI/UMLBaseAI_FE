@@ -29,7 +29,7 @@ export default function Slider() {
 
     useEffect(() => {
         const handleLoadHistories = async () => {
-            const response = await getHistories({ page, size: 2 }).unwrap()
+            const response = await getHistories({ page, size: 10 }).unwrap()
 
             if (page === 1) {
                 setChatHistory(response.body.histories)
