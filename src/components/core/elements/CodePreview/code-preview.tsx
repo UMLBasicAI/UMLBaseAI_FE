@@ -116,7 +116,7 @@ export default function CodePreviewComponent({ code, setCode }: CodePreviewProps
   
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex max-h-[calc(100vh-60px)] flex-col">
       <div className="flex items-center justify-between border-b border-gray-200 p-4">
         <div className="flex space-x-2">
           <button

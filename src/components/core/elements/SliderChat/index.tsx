@@ -24,7 +24,7 @@ export default function Slider() {
   const token = webStorageClient.getToken();
   useEffect(() => {
     const handleLoadHistories = async () => {
-      const response = await getHistories({page, size: 8}).unwrap();
+      const response = await getHistories({page, size: 20}).unwrap();
       console.log(response)
       setChatHistory([...chatHistory, ...response.body.histories]);
     }
