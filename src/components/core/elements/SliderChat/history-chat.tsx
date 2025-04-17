@@ -211,7 +211,7 @@ export default function ChatHistory({
                                     okType: 'primary',
                                     okButtonProps: {
                                         className:
-                                            '!bg-gray-500 !border !border-blugray-500 !hover:bg-blugray-600',
+                                            '!bg-gray-800 !border !border-blugray-800 !hover:bg-blugray-800',
                                     },
                                     cancelText: 'Cancel',
                                     cancelButtonProps: {
