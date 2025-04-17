@@ -7,11 +7,15 @@ export default function MessageBox({
     messages,
     onSendMessage,
     isLoading,
+    handleLoadMessage,
+    isEndOfList
 }: {
     historyId: string
     messages: Array<{ type: 'request' | 'response'; content: string; sent_at: string }>
     onSendMessage: (message: string) => void
-    isLoading: boolean
+    handleLoadMessage: () => void
+    isLoading: boolean,
+    isEndOfList: boolean
 }) {
     const [leftSidebarOpen, setLeftSidebarOpen] = useState(true)
     const [isResizingLeft, setIsResizingLeft] = useState(false)
@@ -35,6 +39,8 @@ export default function MessageBox({
 
             <div className="flex flex-1 flex-col">
                 <ChatInterface
+                    isEndOfList={isEndOfList}
+                    handleLoadMessage={handleLoadMessage}
                     messages={messages}
                     onSendMessage={onSendMessage}
                     isLoading={isLoading}

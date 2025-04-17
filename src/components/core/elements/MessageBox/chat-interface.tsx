@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState, useRef, useEffect } from "react"
+import LoadWrapper from "../../common/LoadWrapper"
 
 interface Message {
   type: "request" | "response"
@@ -14,33 +15,51 @@ interface ChatInterfaceProps {
   messages: Message[]
   onSendMessage: (message: string) => void
   isLoading: boolean
+  handleLoadMessage: () => void
+  isEndOfList: boolean
 }
 
-export default function ChatInterface({ messages, onSendMessage, isLoading }: ChatInterfaceProps) {
+export default function ChatInterface({ messages, onSendMessage, isLoading, handleLoadMessage, isEndOfList }: ChatInterfaceProps) {
   const [input, setInput] = useState("")
   const messagesEndRef = useRef<HTMLDivElement>(null)
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [isSending, setIsSending] = useState(false)
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (input.trim()) {
-      onSendMessage(input)
+      setIsSending(true)
+      await onSendMessage(input)
+      setIsSending(false)
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
       setInput("")
     }
   }
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages])
+    if (!isSending) messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [isSending])
+
+  useEffect(() => {
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    }, 1000)
+  }, [])
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col flex-1 h-full">
       <div className="p-4 text-center border-b border-gray-200">
         <h1 className="text-xl font-bold text-gray-800">AI Assistant</h1>
       </div>
 
-      <div className="flex-1 p-4 overflow-y-auto">
+      <div className="flex-col justify-end h-[500px] overflow-y-auto">
         <div className="space-y-4">
+          {!isEndOfList && <LoadWrapper
+            onLoad={handleLoadMessage}
+            scrollContainerRef={containerRef}
+          >
+            <div></div>
+          </LoadWrapper>}
           {messages.map((message, index) => (
             <div
               key={index}
@@ -48,8 +67,8 @@ export default function ChatInterface({ messages, onSendMessage, isLoading }: Ch
             >
               <div
                 className={`max-w-[80%] px-4 py-2 rounded-lg ${message.type === "request"
-                    ? "bg-gray-800 text-white rounded-tr-none"
-                    : "bg-gray-100 text-gray-800 rounded-tl-none"
+                  ? "bg-gray-800 text-white rounded-tr-none"
+                  : "bg-gray-100 text-gray-800 rounded-tl-none"
                   }`}
               >
                 {message.content === "__loading__" ? (
