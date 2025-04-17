@@ -33,7 +33,8 @@ export default function Header() {
                     );
                     setUser(res.data);
                 } catch (error) {
-                    console.error("Lỗi khi lấy thông tin người dùng:", error);
+                    webStorageClient.removeAll();
+                    router.push('/');
                 }
             }
         };
@@ -51,6 +52,9 @@ export default function Header() {
     const { logout } = useAuth()
     const handleLogin = () => {
         router.push('/sign-in')
+    }
+    const handleSignup = () => {
+        router.push('/sign-up')
     }
     const handleLogout = () => {
         logout()
@@ -225,7 +229,9 @@ export default function Header() {
                         >
                             Sign In
                         </button>
-                        <button className="rounded-md bg-gray-800 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-gray-700">
+                        <button className="rounded-md bg-gray-800 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-gray-700"
+                            onClick={handleSignup}
+                        >
                             Sign Up
                         </button>
                     </div>

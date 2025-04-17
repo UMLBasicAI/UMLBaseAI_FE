@@ -265,7 +265,7 @@ export default function SignIn() {
                   >
                     Don't have an account yet?{" "}
                     <Link
-                      href="#"
+                      href="/sign-up"
                       className="font-medium text-gray-700 hover:text-gray-900 hover:underline dark:text-gray-300 dark:hover:text-white"
                     >
                       Sign up

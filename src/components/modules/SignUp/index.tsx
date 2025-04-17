@@ -361,7 +361,7 @@ export default function SignUp() {
                   >
                     Already have an account?{" "}
                     <Link
-                      href="#"
+                      href="/sign-in"
                       className="font-medium text-gray-700 hover:text-gray-900 hover:underline dark:text-gray-300 dark:hover:text-white"
                     >
                       Sign in
