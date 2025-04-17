@@ -46,7 +46,6 @@ export default function ChatInterface({ messages, onSendMessage, isLoading, hand
     }, 1000)
   }, [])
 
-  console.log(messages);
 
   return (
     <div className="flex w-full flex-col flex-1">
