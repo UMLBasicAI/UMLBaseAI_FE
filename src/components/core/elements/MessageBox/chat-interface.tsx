@@ -45,8 +45,6 @@ export default function ChatInterface({ messages, onSendMessage, isLoading, hand
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
     }, 1000)
   }, [])
-
-
   return (
     <div className="flex w-full flex-col flex-1">
       <div className="p-4 text-center border-b border-gray-200">
