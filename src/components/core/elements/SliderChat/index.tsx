@@ -1,7 +1,10 @@
 "use client"
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import type React from "react"
 import ChatHistory from "./history-chat"
+import { useGetHistoriesQuery, useLazyGetHistoriesQuery } from "@/store/feature/history/historyApi"
+import { History } from "@/store/feature/history/history"
+import webStorageClient from "@/utils/webStorageClient"
 
 export default function Slider() {
   // Default width for the left sidebar
@@ -15,14 +18,22 @@ export default function Slider() {
   const leftSidebarRef = useRef<HTMLDivElement>(null)
   const initialLeftWidthRef = useRef(defaultLeftWidth)
   const initialClientXRef = useRef(0)
+  const [page, setPage] = useState<number>(1);
+  const [chatHistory, setChatHistory] = useState<History[]>([]);
+  const [getHistories, {data, isFetching}] = useLazyGetHistoriesQuery();
+  const token = webStorageClient.getToken();
+  useEffect(() => {
+    const handleLoadHistories = async () => {
+      const response = await getHistories({page, size: 8}).unwrap();
+      console.log(response)
+      setChatHistory([...chatHistory, ...response.body.histories]);
+    }
+    if(token) {
+      handleLoadHistories()
+    }
+  }, [page])
+  console.log(chatHistory);
 
-  const [chatHistory, setChatHistory] = useState([
-    { id: "1", title: "Chat mới", date: "20/03/2024" },
-    { id: "2", title: "Hỏi về React", date: "20/03/2024" },
-    { id: "3", title: "Tạo component", date: "18/03/2024" },
-  ])
-
-  // Start resizing the left sidebar
   const startResizingLeft = (e: React.MouseEvent) => {
     e.preventDefault()
     setIsResizingLeft(true)
@@ -79,7 +90,7 @@ export default function Slider() {
   }
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full" style={{zIndex: 100}}>
       {/* Left Sidebar */}
       <div
         ref={leftSidebarRef}
@@ -91,9 +102,8 @@ export default function Slider() {
         className="relative flex flex-col overflow-hidden border-r border-gray-200 bg-white transition-all duration-300 ease-in-out"
       >
         <div className="h-full overflow-auto">
-          <ChatHistory chatHistory={chatHistory} />
+          <ChatHistory chatHistory={chatHistory!} />
         </div>
-
         {/* Right resize handle for left sidebar */}
         <div
           onMouseDown={startResizingLeft}

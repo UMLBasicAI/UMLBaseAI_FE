@@ -1,6 +1,9 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { cn } from '@/libs/utils'
+import { History } from '@/store/feature/history/history'
+import dayjs from 'dayjs'
+import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 interface ChatHistoryProps {
@@ -11,22 +14,24 @@ interface ChatHistoryProps {
     }>
 }
 
-export default function ChatHistory({ chatHistory }: ChatHistoryProps) {
+export default function ChatHistory({ chatHistory }: {chatHistory: History[]}) {
     const router = useRouter()
+    const pathname = usePathname();
+    console.log(pathname)
 
     const [searchTerm, setSearchTerm] = useState('')
 
-    const filteredHistory = chatHistory.filter((chat) =>
-        chat.title.toLowerCase().includes(searchTerm.toLowerCase()),
+    const filteredHistory = chatHistory?.filter((chat) =>
+        chat?.action.toLowerCase().includes(searchTerm.toLowerCase()),
     )
 
     return (
-        <div className="flex h-full flex-col">
+        <div className="flex h-[calc(100vh-80px)] flex-col">
             <div className="border-b border-gray-200 p-4">
                 <h2 className="text-lg font-semibold text-gray-800">
                     Chat History
                 </h2>
-                <button className="mt-2 flex w-full items-center rounded-md bg-gray-800 px-3 py-2 text-sm text-white hover:bg-gray-700">
+                <button className="mt-2 flex w-full items-center rounded-md bg-gray-800 px-3 py-2 text-sm text-white hover:bg-gray-700" onClick={() => router.push('/chat')} >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="16"
@@ -74,10 +79,14 @@ export default function ChatHistory({ chatHistory }: ChatHistoryProps) {
             </div>
 
             <div className="flex-1 overflow-y-auto">
-                {filteredHistory.length > 0 ? (
+                {filteredHistory?.length > 0 ? (
                     <ul className="divide-y divide-gray-200">
-                        {filteredHistory.map((chat) => (
-                            <li key={chat.id} className="hover:bg-gray-50">
+                        {filteredHistory?.map((chat) => (
+                            <li key={chat.id} className={
+                                cn("hover:bg-gray-50", 
+                                    `${pathname.includes(chat.id) && 'bg-gray-100'}`
+                                )
+                            }>
                                 <button
                                     onClick={() =>
                                         router.push(`/chat/${chat.id}`)
@@ -85,10 +94,10 @@ export default function ChatHistory({ chatHistory }: ChatHistoryProps) {
                                     className="w-full p-4 text-left"
                                 >
                                     <h3 className="truncate text-sm font-medium text-gray-800">
-                                        {chat.title}
+                                        {chat.action}
                                     </h3>
                                     <p className="mt-1 text-xs text-gray-500">
-                                        {chat.date}
+                                        {dayjs(chat.createdAt).format('DD/MM/YYYY')}
                                     </p>
                                 </button>
                             </li>

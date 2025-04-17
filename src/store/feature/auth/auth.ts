@@ -29,7 +29,7 @@ const slice = createSlice({
     },
     extraReducers: (builder) => {
         builder.addMatcher(authApis.endpoints.signIn.matchFulfilled, (state, action) => {
-            webStorageClient.setToken(action.payload.body.accessToken, {maxAge: 60*60});    
+            webStorageClient.setToken(action.payload.body.accessToken, {maxAge: 60*60*24*30});    
             webStorageClient.setRefreshToken(action.payload.body.refreshToken, {maxAge: 60*60*24*30});
         })
     },

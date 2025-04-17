@@ -45,14 +45,13 @@ export default function ChatInterface({ messages, onSendMessage, isLoading, hand
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
     }, 1000)
   }, [])
-
   return (
-    <div className="flex flex-col flex-1 h-full">
+    <div className="flex w-full flex-col flex-1">
       <div className="p-4 text-center border-b border-gray-200">
-        <h1 className="text-xl font-bold text-gray-800">AI Assistant</h1>
+        <h1 className="text-xl font-bold text-gray-800">UML AI Assistant</h1>
       </div>
 
-      <div className="flex-col justify-end h-[500px] overflow-y-auto">
+      <div className="flex-col max-h-[calc(100vh-190px)] justify-end h-full overflow-y-auto pt-2">
         <div className="space-y-4">
           {!isEndOfList && <LoadWrapper
             onLoad={handleLoadMessage}
@@ -63,7 +62,8 @@ export default function ChatInterface({ messages, onSendMessage, isLoading, hand
           {messages.map((message, index) => (
             <div
               key={index}
-              className={`flex ${message.type === "request" ? "justify-end" : "justify-start"}`}
+              className={`flex ${message.type === "request" ? "justify-end pr-4" : "justify-start pl-4"} `}
+              
             >
               <div
                 className={`max-w-[80%] px-4 py-2 rounded-lg ${message.type === "request"

@@ -17,6 +17,7 @@ export interface HistoryResponse {
       createdAt: string;
       updatedAt: string;
     }>;
+    lastPlantUmlCode: string;
     isHasNextPage: boolean;
     isHasPreviousPage: boolean;
   };

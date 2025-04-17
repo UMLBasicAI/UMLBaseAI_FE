@@ -7,7 +7,6 @@ export const useJwtDecode = () => {
     const [decoded, setDecoded] = useState<{ sub: string; jti: string } | null>(
         null,
     )
-
     useEffect(() => {
         const token = webStorageClient.getToken()
         if (token) {

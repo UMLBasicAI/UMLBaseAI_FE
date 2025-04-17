@@ -8,7 +8,7 @@ import { setUserInfo } from '@/store/feature/auth/auth'
 import { useGetUserIdQuery } from '@/store/feature/auth/authApi'
 import webStorageClient from '@/utils/webStorageClient'
 import useToken from 'antd/es/theme/useToken'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import axios from 'axios'
@@ -17,7 +17,8 @@ export default function Header() {
     const router = useRouter()
     const userToken = webStorageClient.getToken()
     const [user, setUser] = useState<any | null>(null)
-
+    const pathname = usePathname();
+    console.log(pathname);
     useEffect(() => {
         const fetchUser = async () => {
             if (userToken) {

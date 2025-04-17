@@ -6,8 +6,9 @@ import {
     BaseQueryFn,
 } from '@reduxjs/toolkit/query/react'
 import { FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query'
-import { useJwtDecode } from '@/hooks/useJwtDecode'
+import { AppJwtPayload, useJwtDecode } from '@/hooks/useJwtDecode'
 import { message } from 'antd'
+import { jwtDecode } from 'jwt-decode'
 
 interface CustomExtraOptions {
     skipAuth?: boolean
@@ -35,30 +36,40 @@ const baseQuery: BaseQueryFn<
 
     let result = await baseQuery(args, api, extraOptions)
 
-    if (result.error?.status === 401 && !extraOptions?.skipAuth) {
+    if ((result.error?.status === 401 || result.error?.status === 403) && !extraOptions?.skipAuth) {
         message.loading('Refreshing your side...')
         const refreshToken = webStorageClient.getRefreshToken()
-        if (!refreshToken) return result
-        const decoded = useJwtDecode()
+        console.log("refresh",refreshToken);
+        const token = webStorageClient.getToken()
+        if (!token) return result;
+        const decoded = jwtDecode<AppJwtPayload>(token)
+        console.log("Decode")
         const refreshResult = await baseQuery(
             {
                 url: '/refresh-access-token',
                 method: 'PATCH',
                 body: {
                     refreshToken: refreshToken,
-                    accesTokenId: decoded?.jti,
+                    accessTokenId: decoded?.jti,
                     userId: decoded?.sub,
                 },
             },
             api,
             { skipAuth: true },
         )
+        if (refreshResult.error) {
+            message.error('Failed to refresh your site')
+            webStorageClient.removeAll();
+            return result;
+        }
+
         if (refreshResult.data) {
+            message.success('Token refreshed successfully!') 
             const newAccessToken = (refreshResult.data as any).body?.accessToken
             const newRefreshToken = (refreshResult.data as any).body
                 ?.refreshToken
 
-            webStorageClient.setToken(newAccessToken, { maxAge: 60 * 60 })
+            webStorageClient.setToken(newAccessToken, { maxAge: 60*60*24*30 })
             webStorageClient.setRefreshToken(newRefreshToken, {
                 maxAge: 60 * 60 * 24 * 30,
             })

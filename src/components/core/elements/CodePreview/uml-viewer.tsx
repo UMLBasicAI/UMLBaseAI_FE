@@ -130,10 +130,10 @@ const PlantUMLViewer: React.FC<PlantUMLViewerProps> = ({ uml }) => {
     }, [handleWheel])
   
     return (
-      <div className="flex flex-col items-center space-y-4 w-full h-full">
+      <div className="flex flex-col items-center space-y-4 w-full min-h-[500px] h-full">
         <div
           ref={containerRef}
-          className={`relative overflow-auto p-4 transition-all duration-300 w-full h-full ${
+          className={`relative overflow-auto p-4 transition-all duration-300 w-full  min-h-[500px] h-full ${
             isFullScreen ? "bg-white flex items-center justify-center" : "flex items-center justify-center"
           }`}
         >
